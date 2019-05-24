@@ -1,22 +1,61 @@
 package me.moonchan.streaming.downloader;
 
+import okhttp3.OkHttpClient;
+
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
+        int nThreads = 4;
 
-        File dest = new File("C:/Video/닥터X.S04.E07.ts");
-        DownloadTask downloadTask = new DownloadTask(dest);
-        String url = "https://vod-c3901.cdn.pooq.co.kr";
-        Cookie cookie = new Cookie(url);
-        cookie.putCookie("CloudFront-Key-Pair-Id", "APKAJ6KCI2B6BKBQMD4A");
-        cookie.putCookie("CloudFront-Policy", "eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cCo6Ly8qLmNkbi5wb29xLmNvLmtyL2hscy9DMzkwMS9DMzkwMV9DMzkwMDAwMDAwNDlfMDFfMDAwNy4xLzEvKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTU0OTQ2MTA0MX0sIklwQWRkcmVzcyI6eyJBV1M6U291cmNlSXAiOiIyMTEuMjE1LjAuMC8xNiJ9fX1dLCJ0aWQiOiI5OTQ4Nzk2OTQ0MSIsInZlciI6IjMifQ__");
-        cookie.putCookie("CloudFront-Signature", "eqI2oVeLQELprRTtZ6-6YFn4SRm89grKZID33RF0rOT6vsHN3mb-t16sP3Gd-zxfBfXVuqK%7E5j4NanDcUNwvv749oMFaJoNsAFHpHX-TT3OvFeN6P22LZjar4Ve-FE841t-D5r7XxcsQVYUmWoR1oKvc2CITg5E8xnUlDAj5Hwv6xYmeCEVfypVVogA87sLiMg8MSqD8JVA6m5YOZGyYGkBfJpOZlpcOuk4IUgeaCCltJh35DbkR4e5zx-gjKBPngfBnz2Gd6a224N6aPs3d%7Edhg4To2pBltI7rPWgoXGEBsYatWweNpC8hIZlobWQkQQLXjL8pbxt-k0AUNaq9oqw__");
+        File[] dests = {
+        };
 
-        downloadTask.setCookie(cookie);
+        String[] lastUrls = {
+        };
 
-        String lastSequence = "https://vod-c3901.cdn.pooq.co.kr/hls/C3901/C3901_C39000000049_01_0007.1/1/2000/1/media_1365.ts";
+        String[] policies = {
+        };
 
-        downloadTask.download(lastSequence);
+        String[] signatures = {
+        };
+
+        ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
+
+        for(int i = 0; i<lastUrls.length; i++) {
+            String url = "https://vod-cr02.cdn.pooq.co.kr";
+            Cookies cookie = new Cookies(url);
+
+//            cookie.putCookie("CloudFront-Key-Pair-Id", "APKAJ6KCI2B6BKBQMD4A");
+//            cookie.putCookie("CloudFront-Policy", policies[i]);
+//            cookie.putCookie("CloudFront-Signature", signatures[i]);
+
+//            cookie.putCookie("HEXAVID_LOGIN", "1abad159d63fabfeAalRBX7kjpp0oJn7b1WnbErXcmhW7dFFJs6Ji2n-uhhyKCaLTMj-AwcLt3CvLV-sViqEzIcAbWUmjb8VMvLinPHM_VWcAEPA33SUMbsBoaYUySCu-cHh4p4ko14odwGddwPYd0Nc8a9Cud3kFwyhardCBaQvQe6z81LDJdoLF9o9gjQYlqMGji73mqID-tCuPVIsTV1pWy8CqFWwJtrBpSB4qN0W2MO7yr_e8x-8GqIxW8-SEm5S-VSswTd3dORm5JRXgqgo5wACX8m_nH8wCW9tABdYw0VuLI8DkyS0BInW4pGrU0kvI0H4SUBq9bqt");
+//            cookie.putCookie("hexatrade","i6o2nquyew38WKfKQ53apSPIl8gK2vH0");
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .callTimeout(15, TimeUnit.SECONDS)
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .readTimeout(15, TimeUnit.SECONDS)
+                    .writeTimeout(15, TimeUnit.SECONDS)
+                    .build();
+
+            DownloadTask downloadTask = new DownloadTask(dests[i], client);
+
+
+            final String lastUrl = lastUrls[i];
+//            downloadTask.setUrlFormat(lastUrl);
+//            downloadTask.setUrlFormatWithBitrate(lastUrl, 5000);
+            DownloadUrl downloadUrl = DownloadUrl.of(lastUrl, 5000);
+            downloadTask.setDownloadUrl(downloadUrl);
+            downloadTask.setCookie(cookie);
+            Thread run = new Thread(() -> {
+                downloadTask.run();
+            });
+            executorService.submit(run);
+        }
     }
 }

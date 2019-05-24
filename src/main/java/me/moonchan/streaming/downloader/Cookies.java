@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Cookie {
+public class Cookies {
     private String url;
     private Map<String, String> cookieMap;
 
-    public Cookie(String url) {
+    public Cookies(String url) {
         this.url = url;
         cookieMap = new HashMap<>();
     }

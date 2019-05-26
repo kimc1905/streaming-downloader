@@ -1,8 +1,11 @@
 package me.moonchan.streaming.downloader;
 
+import lombok.extern.log4j.Log4j;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Log4j
 public class DownloadUrl {
     private String urlFormat;
     private int start;
@@ -25,7 +28,7 @@ public class DownloadUrl {
     public static DownloadUrl of(String url) {
         int beginIndex = url.lastIndexOf("/");
         String fileName = url.substring(beginIndex + 1);
-        System.out.println(fileName);
+        log.debug("from: " + fileName);
 
         Pattern pattern = Pattern.compile("(\\S+)(\\D+)(\\d+)(.ts)");
         Matcher matcher = pattern.matcher(fileName);
@@ -37,8 +40,7 @@ public class DownloadUrl {
                     .append("%d")
                     .append(matcher.group(4))
                     .toString();
-            System.out.println(format);
-
+            log.debug("URL format: " + format);
 
             return new DownloadUrl(format, Integer.parseInt(matcher.group(3)));
         }

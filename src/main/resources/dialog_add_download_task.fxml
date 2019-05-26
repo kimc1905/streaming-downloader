@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="350.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.moonchan.streaming.downloader.controller.AddDownloadTaskDialogController">
+   <children>
+      <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="80.0" text="영상주소" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="editUrl" prefHeight="40.0" prefWidth="507.0">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="btnAutoComplete" mnemonicParsing="false" onAction="#onAutoCompleteButtonClicked" prefHeight="38.0" prefWidth="95.0" text="자동완성" />
+               </children>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="80.0" text="주소형식" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="editUrlFormat" prefHeight="40.0" prefWidth="598.0">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="80.0" text="시작" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="editStart" prefHeight="40.0" prefWidth="598.0" promptText="스트리밍 시작 인덱스">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="80.0" text="끝" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="editEnd" prefHeight="40.0" prefWidth="598.0" promptText="스트리밍 끝 인덱스">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="200.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="80.0" text="저장위치" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="editDest" prefHeight="40.0" prefWidth="507.0" promptText="영상저장 위치">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="btnBrowse" mnemonicParsing="false" onAction="#onBrowseButtonClicked" prefHeight="38.0" prefWidth="95.0" text="찾기" />
+               </children>
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="10.0" right="10.0" top="15.0" />
+         </padding>
+      </VBox>
+      <Button fx:id="btnCancel" layoutX="510.0" layoutY="360.0" mnemonicParsing="false" onAction="#onCancelButtonClicked" prefHeight="38.0" prefWidth="80.0" text="취소" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+      <Button fx:id="btnDone" layoutX="417.0" layoutY="360.0" mnemonicParsing="false" onAction="#onDoneButtonClicked" prefHeight="38.0" prefWidth="80.0" text="확인" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="100.0" />
+   </children>
+</AnchorPane>

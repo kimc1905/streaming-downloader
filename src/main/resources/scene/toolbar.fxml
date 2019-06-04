@@ -10,9 +10,9 @@
     <ToolBar AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
              AnchorPane.topAnchor="0.0">
         <items>
-            <Button id="addNewContactButton" mnemonicParsing="false"
+            <Button id="btnAddDownloadTask" mnemonicParsing="false"
                     onAction="#onAddButtonClicked" text="추가"/>
-            <Button id="addNewContactButton" mnemonicParsing="false"
+            <Button id="btnClearFinishedTask" mnemonicParsing="false"
                     onAction="#onClearButtonClicked" text="완료 목록 삭제"/>
         </items>
     </ToolBar>

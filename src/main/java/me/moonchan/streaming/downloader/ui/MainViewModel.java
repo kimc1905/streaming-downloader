@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import me.moonchan.streaming.downloader.*;
 import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskView;
 import me.moonchan.streaming.downloader.ui.download.DownloadView;
+import me.moonchan.streaming.downloader.util.EventBus;
 import okhttp3.OkHttpClient;
 
 import java.util.Optional;
@@ -31,9 +32,12 @@ public class MainViewModel {
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .build();
         this.downloader = new Downloader(5);
+
+        EventBus.get().getObservable(DownloadInfo.class)
+                .subscribe(this::onAddDownloadTask);
     }
 
-    public void onAddDownloadTask(DownloadInfo downloadInfo) {
+    private void onAddDownloadTask(DownloadInfo downloadInfo) {
         DownloadTask task = new DownloadTask(client, downloadInfo);
         downloader.addDownloadTask(task);
         downloadView.addDownloadTask(task);

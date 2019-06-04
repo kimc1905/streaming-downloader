@@ -20,8 +20,11 @@ public class Downloader {
         this.executorService = Executors.newFixedThreadPool(nThreads);
     }
 
-    public void addDownload(DownloadTask task, String lastUrl, int bitrate) {
-
+    public void addDownloadTask(DownloadTask task) {
+        Thread run = new Thread(() -> {
+            task.run();
+        });
+        executorService.submit(run);
     }
 
 

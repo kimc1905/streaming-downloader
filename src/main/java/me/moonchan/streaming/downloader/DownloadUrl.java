@@ -25,10 +25,23 @@ public class DownloadUrl {
         return new DownloadUrl(urlFormat, start, end);
     }
 
+    public static DownloadUrl of(String urlFormat, int start, int end, int bitrate) {
+        Pattern pattern = Pattern.compile("/(\\d{4})/");
+        Matcher matcher = pattern.matcher(urlFormat);
+        String newUrlFormat = urlFormat;
+
+        if (matcher.find()) {
+            int originalBitrate = Integer.parseInt(matcher.group(1));
+            if (originalBitrate != bitrate) {
+                newUrlFormat = urlFormat.replace("/" + originalBitrate + "/", "/" + bitrate + "/");
+            }
+        }
+        return of(newUrlFormat, start, end);
+    }
+
     public static DownloadUrl of(String url) {
         int beginIndex = url.lastIndexOf("/");
         String fileName = url.substring(beginIndex + 1);
-        log.debug("from: " + fileName);
 
         Pattern pattern = Pattern.compile("(\\S+)(\\D+)(\\d+)(.ts)");
         Matcher matcher = pattern.matcher(fileName);
@@ -40,24 +53,10 @@ public class DownloadUrl {
                     .append("%d")
                     .append(matcher.group(4))
                     .toString();
-            log.debug("URL format: " + format);
 
             return new DownloadUrl(format, Integer.parseInt(matcher.group(3)));
         }
         throw new RuntimeException("해당 url을 변환할 수 없습니다. " + url);
-    }
-
-    public static DownloadUrl of(String url, int bitrate) {
-        Pattern pattern = Pattern.compile("/(\\d{4})/");
-        Matcher matcher = pattern.matcher(url);
-
-        if (matcher.find()) {
-            int originalBitrate = Integer.parseInt(matcher.group(1));
-            if (originalBitrate != bitrate) {
-                url = url.replace("/" + originalBitrate + "/", "/" + bitrate + "/");
-            }
-        }
-        return of(url);
     }
 
     public String getUrlFormat() {

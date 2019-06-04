@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Main extends Application {
+public class App extends Application {
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 768;
@@ -23,7 +23,7 @@ public class Main extends Application {
     }
 
     private void initRootLayout() throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/main.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/scene/main.fxml"));
         primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
     }
 

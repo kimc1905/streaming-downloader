@@ -1,8 +1,10 @@
 package me.moonchan.streaming.downloader.ui.toolbar;
 
-import com.jakewharton.rxrelay2.Relay;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 public class ToolbarView {
 
     ToolbarViewModel viewModel;
@@ -13,16 +15,12 @@ public class ToolbarView {
     }
 
     @FXML
-    public void onAddButtonClicked() {
-        viewModel.publishAddEvent();
+    public void onAddButtonClicked(ActionEvent e) {
+        viewModel.publishClickEvent(e);
     }
 
     @FXML
-    public void onClearButtonClicked() {
-        viewModel.publishClearEvent();
-    }
-
-    public Relay<String> getRelayToolbarEvent() {
-        return viewModel.getRelayToolbarEvent();
+    public void onClearButtonClicked(ActionEvent e) {
+        viewModel.publishClickEvent(e);
     }
 }

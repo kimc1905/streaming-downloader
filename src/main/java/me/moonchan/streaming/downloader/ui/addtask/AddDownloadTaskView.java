@@ -1,7 +1,5 @@
 package me.moonchan.streaming.downloader.ui.addtask;
 
-import com.jakewharton.rxrelay2.PublishRelay;
-import com.jakewharton.rxrelay2.Relay;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -12,7 +10,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.extern.log4j.Log4j;
 import me.moonchan.streaming.downloader.Cookie;
-import me.moonchan.streaming.downloader.DownloadInfo;
 
 @Log4j
 public class AddDownloadTaskView {
@@ -107,10 +104,6 @@ public class AddDownloadTaskView {
 
     public void setCookie(Cookie cookie) {
         viewModel.setCookie(cookie);
-    }
-
-    public Relay<DownloadInfo> getRelayDownloadInfo() {
-        return viewModel.getRelayDownloadInfo();
     }
 
     @FXML

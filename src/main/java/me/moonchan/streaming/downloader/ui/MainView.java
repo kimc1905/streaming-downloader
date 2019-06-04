@@ -1,16 +1,18 @@
 package me.moonchan.streaming.downloader.ui;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j;
 import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskView;
 import me.moonchan.streaming.downloader.ui.download.DownloadView;
-import me.moonchan.streaming.downloader.ui.toolbar.ToolbarView;
 import me.moonchan.streaming.downloader.util.Constants;
+import me.moonchan.streaming.downloader.util.EventBus;
 
 import java.io.IOException;
 
@@ -19,10 +21,6 @@ public class MainView {
 
     @FXML
     AnchorPane mainPane;
-
-    @FXML
-    ToolbarView toolbarController;
-
     @FXML
     DownloadView downloadController;
 
@@ -31,12 +29,14 @@ public class MainView {
     @FXML
     private void initialize() {
         this.viewModel = new MainViewModel(downloadController);
-        toolbarController.getRelayToolbarEvent()
-                .subscribe(event -> {
-                    log.debug("Received Event: " + event);
-                    if (event.equals(Constants.Event.ADD_DOWNLOAD_TASK))
+        EventBus.get().getObservable(ActionEvent.class)
+                .map(e -> (Button)(e.getSource()))
+                .map(btn -> btn.getId())
+                .subscribe(id -> {
+                    log.debug("Received Event: " + id);
+                    if (id.equals(Constants.ComponentId.BTN_ADD_DOWNLOAD_TASK))
                         showAddDownloadTaskDialog();
-                    else if(event.equals(Constants.Event.CLEAR_FINISHED_TASK))
+                    else if (id.equals(Constants.ComponentId.BTN_CLEAR_FINISHED_TASK))
                         viewModel.clearFinishedTask();
                 });
     }
@@ -50,8 +50,6 @@ public class MainView {
 
             // 컨트롤러 설정
             AddDownloadTaskView addDownloadTaskView = loader.getController();
-            addDownloadTaskView.getRelayDownloadInfo()
-                    .subscribe(viewModel::onAddDownloadTask);
             addDownloadTaskView.setDialogStage(dialogStage);
             viewModel.initAddDownloadTaskView(addDownloadTaskView);
 

@@ -1,6 +1,5 @@
 package me.moonchan.streaming.downloader.ui.addtask;
 
-import com.jakewharton.rxrelay2.PublishRelay;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -12,6 +11,7 @@ import lombok.extern.log4j.Log4j;
 import me.moonchan.streaming.downloader.Cookie;
 import me.moonchan.streaming.downloader.DownloadInfo;
 import me.moonchan.streaming.downloader.DownloadUrl;
+import me.moonchan.streaming.downloader.util.EventBus;
 
 import java.io.File;
 import java.util.List;
@@ -21,20 +21,25 @@ import java.util.Optional;
 @Log4j
 public class AddDownloadTaskViewModel {
 
-    private final StringProperty url = new SimpleStringProperty("");
-    private final StringProperty urlFormat = new SimpleStringProperty("");
-    private final StringProperty start = new SimpleStringProperty("");
-    private final StringProperty end = new SimpleStringProperty("");
-    private final StringProperty saveLocation = new SimpleStringProperty("");
-    private final StringProperty cookieKey = new SimpleStringProperty("");
-    private final StringProperty cookieValue = new SimpleStringProperty("");
+    private final StringProperty url;
+    private final StringProperty urlFormat;
+    private final StringProperty start;
+    private final StringProperty end;
+    private final StringProperty saveLocation;
+    private final StringProperty cookieKey;
+    private final StringProperty cookieValue;
 
     private File recentSaveDir;
     private ObservableList<CookieViewModel> cookieData;
-    PublishRelay<DownloadInfo> relayDownloadInfo;
 
     public AddDownloadTaskViewModel() {
-        relayDownloadInfo = PublishRelay.create();
+        url = new SimpleStringProperty("");
+        urlFormat = new SimpleStringProperty("");
+        start = new SimpleStringProperty("");
+        end = new SimpleStringProperty("");
+        saveLocation = new SimpleStringProperty("");
+        cookieKey = new SimpleStringProperty("");
+        cookieValue = new SimpleStringProperty("");
         cookieData = FXCollections.observableArrayList();
     }
 
@@ -161,6 +166,6 @@ public class AddDownloadTaskViewModel {
         File saveLocation = new File(this.saveLocation.get());
         DownloadUrl downloadUrl = getDownloadUrl();
         Cookie cookie = getCookie();
-        relayDownloadInfo.accept(new DownloadInfo(downloadUrl, saveLocation, cookie));
+        EventBus.get().post(new DownloadInfo(downloadUrl, saveLocation, cookie));
     }
 }

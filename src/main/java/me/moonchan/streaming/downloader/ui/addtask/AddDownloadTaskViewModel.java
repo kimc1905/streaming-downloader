@@ -49,7 +49,7 @@ public class AddDownloadTaskViewModel {
         this.recentSaveDir = recentSaveFile.getParentFile();
     }
 
-    public boolean hasRecentSaveDir() {
+    private boolean hasRecentSaveDir() {
         return recentSaveDir != null && recentSaveDir.isDirectory();
     }
 
@@ -101,13 +101,10 @@ public class AddDownloadTaskViewModel {
     }
 
     public void browseSaveLocation(Window window) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("TS File", "*.ts")
-        );
+        FileChooser fileChooser = createTsFileChooser();
 
         if(hasRecentSaveDir()) {
-            fileChooser.setInitialDirectory(getRecentSaveDir());
+            fileChooser.setInitialDirectory(recentSaveDir);
         }
 
         File saveFile = fileChooser.showSaveDialog(window);
@@ -115,6 +112,14 @@ public class AddDownloadTaskViewModel {
             saveLocation.set(saveFile.getAbsolutePath());
             recentSaveDir = saveFile.getParentFile();
         }
+    }
+
+    private FileChooser createTsFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("TS File", "*.ts")
+        );
+        return fileChooser;
     }
 
     public void setDownloadUrl(String url) {
@@ -159,7 +164,7 @@ public class AddDownloadTaskViewModel {
         return true;
     }
 
-    public void addDownloadTask() throws Exception {
+    public void addDownloadTask() {
         if(!validateSaveLocation()) {
             throw new RuntimeException("저장 위치가 올바르지 않습니다.");
         }

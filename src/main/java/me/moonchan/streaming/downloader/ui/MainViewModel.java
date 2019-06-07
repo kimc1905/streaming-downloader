@@ -47,6 +47,7 @@ public class MainViewModel {
     }
 
     public void clearFinishedTask() {
+        log.debug("clearFinishedTask");
         downloadView.clearFinishedDownloadTask();
     }
 

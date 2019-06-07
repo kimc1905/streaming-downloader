@@ -1,5 +1,6 @@
 package me.moonchan.streaming.downloader.ui;
 
+import io.reactivex.functions.Predicate;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,17 +30,21 @@ public class MainView {
     @FXML
     private void initialize() {
         this.viewModel = new MainViewModel(downloadController);
-        EventBus.get().getObservable(ActionEvent.class)
-                .map(e -> (Button)(e.getSource()))
-                .map(btn -> btn.getId())
-                .subscribe(id -> {
-                    log.debug("Received Event: " + id);
-                    if (id.equals(Constants.ComponentId.BTN_ADD_DOWNLOAD_TASK))
-                        showAddDownloadTaskDialog();
-                    else if (id.equals(Constants.ComponentId.BTN_CLEAR_FINISHED_TASK))
-                        viewModel.clearFinishedTask();
-                });
+        EventBus.get().getObservable(ActionEvent.class, filterAddDownloadTask)
+                .subscribe(e -> showAddDownloadTaskDialog());
+        EventBus.get().getObservable(ActionEvent.class, filterClearFinishedTask)
+                .subscribe(e -> viewModel.clearFinishedTask());
     }
+
+    private Predicate<ActionEvent> filterAddDownloadTask = e -> {
+        String id = ((Button) e.getSource()).getId();
+        return id.equals(Constants.ComponentId.BTN_ADD_DOWNLOAD_TASK);
+    };
+
+    private Predicate<ActionEvent> filterClearFinishedTask = e -> {
+        String id = ((Button) e.getSource()).getId();
+        return id.equals(Constants.ComponentId.BTN_CLEAR_FINISHED_TASK);
+    };
 
     private boolean showAddDownloadTaskDialog() {
         try {

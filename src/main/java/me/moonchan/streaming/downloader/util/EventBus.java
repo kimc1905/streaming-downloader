@@ -3,6 +3,7 @@ package me.moonchan.streaming.downloader.util;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
 import io.reactivex.Observable;
+import io.reactivex.functions.Predicate;
 
 public class EventBus {
 
@@ -28,5 +29,11 @@ public class EventBus {
     public <T> Observable<T> getObservable(Class<T> tClass) {
         return relay.filter(value -> tClass.isInstance(value))
                 .map(value -> tClass.cast(value));
+    }
+
+    public <T> Observable<T> getObservable(Class<T> tClass, Predicate<T> filter) {
+        return relay.filter(value -> tClass.isInstance(value))
+                .map(value -> tClass.cast(value))
+                .filter(filter);
     }
 }

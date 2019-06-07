@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 @Log4j
 public class DownloadUrl {
+    public static final String PATTERN_TS_URL = "(\\S+)(\\D+)(\\d+)(.ts)(\\S*$)";
+    public static final String PATTERN_BITRATE = "/(\\d{4})/";
     private String urlFormat;
     private int start;
     private int end;
@@ -26,7 +28,7 @@ public class DownloadUrl {
     }
 
     public static DownloadUrl of(String urlFormat, int start, int end, int bitrate) {
-        Pattern pattern = Pattern.compile("/(\\d{4})/");
+        Pattern pattern = Pattern.compile(PATTERN_BITRATE);
         Matcher matcher = pattern.matcher(urlFormat);
         String newUrlFormat = urlFormat;
 
@@ -43,7 +45,7 @@ public class DownloadUrl {
         int beginIndex = url.lastIndexOf("/");
         String fileName = url.substring(beginIndex + 1);
 
-        Pattern pattern = Pattern.compile("(\\S+)(\\D+)(\\d+)(.ts)");
+        Pattern pattern = Pattern.compile(PATTERN_TS_URL);
         Matcher matcher = pattern.matcher(fileName);
 
         if (matcher.find()) {
@@ -52,6 +54,7 @@ public class DownloadUrl {
                     .append("/" + matcher.group(1) + matcher.group(2))
                     .append("%d")
                     .append(matcher.group(4))
+                    .append(matcher.group(5))
                     .toString();
 
             return new DownloadUrl(format, Integer.parseInt(matcher.group(3)));

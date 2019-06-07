@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import me.moonchan.streaming.downloader.*;
 import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskView;
 import me.moonchan.streaming.downloader.ui.download.DownloadView;
+import me.moonchan.streaming.downloader.util.Constants;
 import me.moonchan.streaming.downloader.util.EventBus;
 import okhttp3.OkHttpClient;
 
@@ -35,6 +36,8 @@ public class MainViewModel {
 
         EventBus.get().getObservable(DownloadInfo.class)
                 .subscribe(this::onAddDownloadTask);
+        EventBus.get().getObservable(String.class, Constants.EventMessage.APPLICATION_STOP::equals)
+                .subscribe(this::onApplicationStop);
     }
 
     private void onAddDownloadTask(DownloadInfo downloadInfo) {
@@ -49,6 +52,10 @@ public class MainViewModel {
     public void clearFinishedTask() {
         log.debug("clearFinishedTask");
         downloadView.clearFinishedDownloadTask();
+    }
+
+    private void onApplicationStop(String msg) {
+        downloader.shutdown();
     }
 
     public void initAddDownloadTaskView(AddDownloadTaskView view) {

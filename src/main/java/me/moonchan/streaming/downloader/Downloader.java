@@ -27,5 +27,9 @@ public class Downloader {
         executorService.submit(run);
     }
 
+    public void shutdown() {
+        executorService.shutdown();;
+    }
+
 
 }

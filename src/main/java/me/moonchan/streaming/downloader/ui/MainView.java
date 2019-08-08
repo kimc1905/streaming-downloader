@@ -9,15 +9,17 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskView;
 import me.moonchan.streaming.downloader.ui.download.DownloadView;
 import me.moonchan.streaming.downloader.util.Constants;
 import me.moonchan.streaming.downloader.util.EventBus;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 
-@Log4j
+@Controller
+@Slf4j
 public class MainView {
 
     @FXML

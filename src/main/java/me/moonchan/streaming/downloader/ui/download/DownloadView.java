@@ -5,7 +5,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
 import me.moonchan.streaming.downloader.DownloadTask;
+import org.springframework.stereotype.Controller;
 
+@Controller
 public class DownloadView {
     @FXML
     private TableView<DownloadTaskViewModel> tableDownloadTask;

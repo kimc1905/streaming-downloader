@@ -8,6 +8,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.Cookie;
 import me.moonchan.streaming.downloader.DownloadInfo;
 import me.moonchan.streaming.downloader.DownloadUrl;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Getter
-@Log4j
+@Slf4j
 public class AddDownloadTaskViewModel {
 
     private final StringProperty url;

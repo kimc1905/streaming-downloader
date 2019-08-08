@@ -2,6 +2,7 @@ package me.moonchan.streaming.downloader.ui;
 
 import javafx.scene.input.Clipboard;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.*;
 import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskView;
 import me.moonchan.streaming.downloader.ui.download.DownloadView;
@@ -12,7 +13,7 @@ import okhttp3.OkHttpClient;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@Log4j
+@Slf4j
 public class MainViewModel {
 
     public static final String PREF_RECENT_SAVE_FILE = "recentSaveDir";

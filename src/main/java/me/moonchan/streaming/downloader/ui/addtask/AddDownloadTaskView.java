@@ -9,9 +9,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.Cookie;
+import org.springframework.stereotype.Controller;
 
-@Log4j
+@Controller
+@Slf4j
 public class AddDownloadTaskView {
 
     @FXML

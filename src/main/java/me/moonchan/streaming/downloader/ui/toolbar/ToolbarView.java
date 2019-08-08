@@ -2,9 +2,11 @@ package me.moonchan.streaming.downloader.ui.toolbar;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 
-@Log4j
+@Controller
+@Slf4j
 public class ToolbarView {
 
     ToolbarViewModel viewModel;

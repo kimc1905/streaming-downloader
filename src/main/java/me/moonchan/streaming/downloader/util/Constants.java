@@ -15,11 +15,12 @@ public final class Constants {
     }
 
     public static class PreferenceKey {
+        public static final String PREF_RECENT_SAVE_FILE = "recentSaveDir";
+        public static final String PREF_RECENT_COOKIE = "cookie";
+        public static final String PREF_RECENT_START = "recentStart";
         public static final String PREF_MAIN_STAGE_WIDTH = "PREF_MAIN_STAGE_WIDTH";
         public static final String PREF_MAIN_STAGE_HEIGHT = "PREF_MAIN_STAGE_HEIGHT";
         public static final String PREF_MAIN_STAGE_X = "PREF_MAIN_STAGE_X";
         public static final String PREF_MAIN_STAGE_Y = "PREF_MAIN_STAGE_Y";
-        public static final String PREF_RECENT_IMPORT_DIR = "PREF_RECENT_IMPORT_DIR";
-        public static final String PREF_RECENT_EXPORT_DIR = "PREF_RECENT_EXPORT_DIR";
     }
 }

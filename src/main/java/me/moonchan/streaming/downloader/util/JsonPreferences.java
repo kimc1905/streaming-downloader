@@ -1,4 +1,4 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.util;
 
 import com.google.gson.Gson;
 
@@ -20,6 +20,10 @@ public class JsonPreferences {
         preferences.put(key, value);
     }
 
+    public void putInt(String key, int value) {
+        preferences.putInt(key, value);
+    }
+
     public void putObject(String key, Object o) {
         String s = gson.toJson(o);
         preferences.put(key, s);
@@ -27,6 +31,10 @@ public class JsonPreferences {
 
     public String get(String key, String def) {
         return preferences.get(key, def);
+    }
+
+    public int getInt(String key, int def) {
+        return preferences.getInt(key, def);
     }
 
     public <T> Optional<T> getObject(String key, Class<T> tClass) {

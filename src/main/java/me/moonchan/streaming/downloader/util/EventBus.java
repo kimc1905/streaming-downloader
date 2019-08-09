@@ -3,37 +3,46 @@ package me.moonchan.streaming.downloader.util;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
 import io.reactivex.Observable;
-import io.reactivex.functions.Predicate;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 
 public class EventBus {
 
-    private static EventBus ourInstance = new EventBus();
     private final Relay<Object> relay;
 
-    private EventBus() {
-        relay = PublishRelay.create();
+    public EventBus() {
+        relay = PublishRelay.create().toSerialized();
     }
 
-    public static EventBus get() {
-        return ourInstance;
+    public void send(Object event) {
+        relay.accept(event);
     }
 
-    public void post(Object value) {
-        relay.accept(value);
+    public boolean hasObservers() {
+        return relay.hasObservers();
     }
 
-    public Observable<Object> getObservable() {
-        return relay;
+    public <T> Observable<T> ofType(Class<T> eventType) {
+        return relay.ofType(eventType);
     }
 
-    public <T> Observable<T> getObservable(Class<T> tClass) {
-        return relay.filter(value -> tClass.isInstance(value))
-                .map(value -> tClass.cast(value));
+    public <T> Disposable register(Class<T> eventType, Scheduler scheduler, Consumer<T> onNext) {
+        return ofType(eventType).observeOn(scheduler).subscribe(onNext);
     }
 
-    public <T> Observable<T> getObservable(Class<T> tClass, Predicate<T> filter) {
-        return relay.filter(value -> tClass.isInstance(value))
-                .map(value -> tClass.cast(value))
-                .filter(filter);
+    public <T> Disposable register(Class<T> eventType, Consumer<T> onNext) {
+        return ofType(eventType).observeOn(JavaFxScheduler.platform()).subscribe(onNext);
+    }
+
+    public <T> Disposable register(Class<T> eventType, Consumer<T> onNext, Consumer<Throwable> onError) {
+        return ofType(eventType).observeOn(JavaFxScheduler.platform()).subscribe(onNext, onError);
+    }
+
+    public void unregister(Disposable disposable) {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 }

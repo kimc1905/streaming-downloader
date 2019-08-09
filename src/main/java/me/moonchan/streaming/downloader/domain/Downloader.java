@@ -1,4 +1,4 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
 import java.util.ArrayList;
 import java.util.List;

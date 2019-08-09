@@ -4,11 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.ProgressBarTableCell;
-import me.moonchan.streaming.downloader.DownloadTask;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class DownloadView {
+public class DownloadView implements DownloadContract.View {
     @FXML
     private TableView<DownloadTaskViewModel> tableDownloadTask;
     @FXML
@@ -22,12 +22,16 @@ public class DownloadView {
     @FXML
     private TableColumn<DownloadTaskViewModel, Double> colProgress;
 
-    private DownloadViewModel viewModel;
+    private DownloadContract.Presenter presenter;
+
+    @Autowired
+    public DownloadView(DownloadContract.Presenter presenter) {
+        this.presenter = presenter;
+    }
 
     @FXML
     private void initialize() {
-        viewModel = new DownloadViewModel();
-        tableDownloadTask.setItems(viewModel.getDownloadTasks());
+        presenter.bindDownloadTaskTable(tableDownloadTask);
         colName.setCellValueFactory(cellData -> cellData.getValue().getName());
         colUrl.setCellValueFactory(cellData -> cellData.getValue().getUrl());
         colFile.setCellValueFactory(cellData -> cellData.getValue().getDest());
@@ -36,12 +40,12 @@ public class DownloadView {
         colProgress.setCellValueFactory(cellData -> cellData.getValue().getProgress().asObject());
     }
 
-    public void addDownloadTask(DownloadTask task) {
-        viewModel.addDownloadTask(task);
-    }
-
-    public void clearFinishedDownloadTask() {
-        viewModel.clearFinishedDownloadTask();
-    }
+//    public void addDownloadTask(DownloadTask task) {
+//        presenter.addDownloadTask(task);
+//    }
+//
+//    public void clearFinishedDownloadTask() {
+//        presenter.clearFinishedDownloadTask();
+//    }
 
 }

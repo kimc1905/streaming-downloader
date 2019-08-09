@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import me.moonchan.streaming.downloader.ui.main.MainContract;
+import me.moonchan.streaming.downloader.ui.main.MainView;
 import me.moonchan.streaming.downloader.util.Constants;
 import me.moonchan.streaming.downloader.util.EventBus;
 import org.springframework.boot.SpringApplication;
@@ -21,6 +23,7 @@ public class App extends Application {
     private ConfigurableApplicationContext springContext;
     private Parent rootNode;
     private Stage mainStage;
+    private MainView mainView;
     private Preferences preferences;
 
     @Override
@@ -31,6 +34,7 @@ public class App extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/scene/main.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
         rootNode = fxmlLoader.load();
+        mainView = fxmlLoader.getController();
     }
 
     @Override
@@ -48,7 +52,7 @@ public class App extends Application {
     public void stop() throws Exception {
         super.stop();
         savePositionAndSize();
-        EventBus.get().post(Constants.EventMessage.APPLICATION_STOP);
+        mainView.onStopApplication();
         springContext.close();
     }
 

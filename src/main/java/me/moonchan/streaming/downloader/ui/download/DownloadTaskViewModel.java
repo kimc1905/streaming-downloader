@@ -2,8 +2,8 @@ package me.moonchan.streaming.downloader.ui.download;
 
 import javafx.beans.property.*;
 import lombok.Getter;
-import me.moonchan.streaming.downloader.DownloadTask;
-import me.moonchan.streaming.downloader.DownloadUrl;
+import me.moonchan.streaming.downloader.domain.DownloadTask;
+import me.moonchan.streaming.downloader.domain.DownloadUrl;
 
 @Getter
 public class DownloadTaskViewModel {
@@ -21,7 +21,7 @@ public class DownloadTaskViewModel {
         this.name = new SimpleStringProperty(downloadTask.getSaveLocation().getName());
         this.url = new SimpleStringProperty(downloadUrl.getUrlFormat());
         this.dest = new SimpleStringProperty(downloadTask.getSaveLocation().getAbsolutePath());
-        this.state = new SimpleStringProperty(downloadTask.INIT_STATE.toString());
+        this.state = new SimpleStringProperty(downloadTask.getState().toString());
         this.progress = new SimpleDoubleProperty(0.0);
         downloadTask.getObservableProgress().subscribe(this::onProgressChanged);
         downloadTask.getObservableState().subscribe(this::onStateChanged);

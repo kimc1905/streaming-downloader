@@ -1,4 +1,4 @@
-import me.moonchan.streaming.downloader.DownloadUrl;
+import me.moonchan.streaming.downloader.domain.DownloadUrl;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

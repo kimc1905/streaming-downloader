@@ -7,22 +7,21 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @Slf4j
-public class ToolbarView {
+public class ToolbarView implements ToolbarContract.View {
 
-    ToolbarViewModel viewModel;
+    ToolbarContract.Presenter presenter;
 
-    @FXML
-    private void initialize() {
-        viewModel = new ToolbarViewModel();
+    public ToolbarView(ToolbarContract.Presenter presenter) {
+        this.presenter = presenter;
     }
 
     @FXML
     public void onAddButtonClicked(ActionEvent e) {
-        viewModel.publishClickEvent(e);
+        presenter.sendEventMessage(e);
     }
 
     @FXML
     public void onClearButtonClicked(ActionEvent e) {
-        viewModel.publishClickEvent(e);
+        presenter.sendEventMessage(e);
     }
 }

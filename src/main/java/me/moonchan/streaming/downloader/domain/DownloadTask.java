@@ -1,9 +1,9 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
+import javafx.beans.value.ObservableStringValue;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,12 +45,13 @@ public class DownloadTask implements Runnable {
     }
 
     private static final int RETRY = 3;
-    public static final State INIT_STATE = State.READY;
+    public static final State INIT_DOWNLOAD_STATE = State.READY;
 
     private File saveLocation;
     private Cookie cookie;
     private OkHttpClient client;
     private DownloadUrl downloadUrl;
+    @Getter
     private State state;
     @Getter
     private final Relay<State> observableState = PublishRelay.create();
@@ -66,7 +67,7 @@ public class DownloadTask implements Runnable {
         this.saveLocation = saveLocation;
         this.downloadUrl = downloadUrl;
         this.cookie = cookie;
-        this.state = INIT_STATE;
+        this.state = INIT_DOWNLOAD_STATE;
     }
 
     public DownloadTask(OkHttpClient client, DownloadInfo downloadInfo) {
@@ -74,7 +75,7 @@ public class DownloadTask implements Runnable {
         this.saveLocation = downloadInfo.getSaveLocation();
         this.downloadUrl = downloadInfo.getDownloadUrl();
         this.cookie = downloadInfo.getCookie();
-        this.state = INIT_STATE;
+        this.state = INIT_DOWNLOAD_STATE;
     }
 
     public void setCookie(Cookie cookie) {
@@ -135,7 +136,7 @@ public class DownloadTask implements Runnable {
     public void run() {
         try {
             createDestFile();
-            observableState.accept(State.DOWNLOADING);
+            setState(State.DOWNLOADING);
             int start = downloadUrl.getStart();
             int end = downloadUrl.getEnd();
             int length = end - start + 1;
@@ -145,14 +146,19 @@ public class DownloadTask implements Runnable {
                 downloadFromUrl(downloadUrl.getUrl(i), 1);
                 observableProgress.accept(Progress.of((i - start + 1), length));
             }
-            observableState.accept(State.COMPLETE);
+            setState(State.COMPLETE);
         } catch (IOException e) {
             e.printStackTrace();
-            observableState.accept(State.ERROR);
+            setState(State.ERROR);
         } catch (Exception e) {
             e.printStackTrace();
-            observableState.accept(State.ERROR);
+            setState(State.ERROR);
         }
+    }
+
+    private void setState(State state) {
+        this.state = state;
+        observableState.accept(state);
     }
 
 }

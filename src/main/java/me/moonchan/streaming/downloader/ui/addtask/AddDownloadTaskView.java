@@ -3,19 +3,22 @@ package me.moonchan.streaming.downloader.ui.addtask;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
-import me.moonchan.streaming.downloader.Cookie;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+
+import java.io.File;
 
 @Controller
 @Slf4j
-public class AddDownloadTaskView {
+public class AddDownloadTaskView implements AddDownloadTaskContract.View {
 
     @FXML
     private TextField editUrl;
@@ -39,25 +42,32 @@ public class AddDownloadTaskView {
     private TextField editCookieValue;
 
     private Stage dialogStage;
-    private AddDownloadTaskViewModel viewModel;
 
+    @Autowired
+    private AddDownloadTaskContract.Presenter presenter;
+
+    @Autowired
+    public AddDownloadTaskView(AddDownloadTaskPresenter presenter) {
+        this.presenter = presenter;
+    }
 
     @FXML
     private void initialize() {
-        viewModel = new AddDownloadTaskViewModel();
+        log.debug("initialize AddDownloadTaskView");
         bindProperty();
         initTextAreaFilter();
         initTableView();
+        presenter.init();
     }
 
     private void bindProperty() {
-        editUrl.textProperty().bindBidirectional(viewModel.getUrl());
-        editUrlFormat.textProperty().bindBidirectional(viewModel.getUrlFormat());
-        editStart.textProperty().bindBidirectional(viewModel.getStart());
-        editEnd.textProperty().bindBidirectional(viewModel.getEnd());
-        editSaveLocation.textProperty().bindBidirectional(viewModel.getSaveLocation());
-        editCookieKey.textProperty().bindBidirectional(viewModel.getCookieKey());
-        editCookieValue.textProperty().bindBidirectional(viewModel.getCookieValue());
+        presenter.bindUrl(editUrl);
+        presenter.bindUrlFormat(editUrlFormat);
+        presenter.bindStart(editStart);
+        presenter.bindEnd(editEnd);
+        presenter.bindSaveLocation(editSaveLocation);
+        presenter.bindCookieKey(editCookieKey);
+        presenter.bindCookieValue(editCookieValue);
     }
 
     private void initTextAreaFilter() {
@@ -74,7 +84,7 @@ public class AddDownloadTaskView {
     }
 
     private void initTableView() {
-        tableCookie.setItems(viewModel.getCookieData());
+        presenter.bindCookieTableView(tableCookie);
         colKey.setCellValueFactory(cellData -> cellData.getValue().getKey());
         colValue.setCellValueFactory(cellData -> cellData.getValue().getValue());
         tableCookie.getSelectionModel().selectedItemProperty().addListener(
@@ -91,43 +101,48 @@ public class AddDownloadTaskView {
         this.dialogStage = dialogStage;
     }
 
-    public void setUrl(String text) {
-        setDownloadUrl(text);
-        if (!editUrlFormat.getText().isEmpty())
-            editUrl.setText(text);
+    @Override
+    public Scene getScene() {
+        return tableCookie.getScene();
     }
 
-    public void setRecentSaveFile(String path) {
-        viewModel.setRecentSaveFile(path);
-    }
+//    public void setUrl(String text) {
+//        autoFill(text);
+//        if (!editUrlFormat.getText().isEmpty())
+//            editUrl.setText(text);
+//    }
 
-    private void setDownloadUrl(String url) {
-        viewModel.setDownloadUrl(url);
-    }
-
-    public void setCookie(Cookie cookie) {
-        viewModel.setCookie(cookie);
-    }
+//    public void setRecentSaveFile(String path) {
+//        presenter.setRecentSaveFile(path);
+//    }
+//
+//    private void autoFill(String url) {
+//        presenter.autoFill(url);
+//    }
+//
+//    public void setCookie(Cookie cookie) {
+//        presenter.setCookie(cookie);
+//    }
 
     @FXML
     private void onAutoCompleteButtonClicked() {
-        viewModel.setDownloadUrl(viewModel.getUrl().get());
+        presenter.autoComplete();
     }
 
     @FXML
     private void onBrowseButtonClicked(ActionEvent event) {
         Window window = ((Node) event.getSource()).getScene().getWindow();
-        viewModel.browseSaveLocation(window);
+        browseSaveLocation(window);
     }
 
     @FXML
     private void onAddCookieButtonClicked() {
-        viewModel.addCookie();
+        presenter.addCookie();
     }
 
     @FXML
     private void onRemoveCookieButtonClicked() {
-        viewModel.removeCookie();
+        presenter.removeCookie();
     }
 
     @FXML
@@ -138,10 +153,28 @@ public class AddDownloadTaskView {
     @FXML
     private void onDoneButtonClicked() {
         try {
-            viewModel.addDownloadTask();
+            presenter.addDownloadTask();
             dialogStage.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    private void browseSaveLocation(Window window) {
+        FileChooser fileChooser;
+        fileChooser = createTsFileChooser();
+        presenter.getRecentSaveDir().ifPresent(recentDir -> fileChooser.setInitialDirectory(recentDir));
+        File saveFile = fileChooser.showSaveDialog(window);
+        if (saveFile != null) {
+            presenter.setSaveLocation(saveFile);
+        }
+    }
+
+    private FileChooser createTsFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("TS File", "*.ts")
+        );
+        return fileChooser;
     }
 }

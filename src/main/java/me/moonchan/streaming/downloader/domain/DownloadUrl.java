@@ -1,4 +1,4 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,6 +42,10 @@ public class DownloadUrl {
     }
 
     public static DownloadUrl of(String url) {
+        return of(url, 1);
+    }
+
+    public static DownloadUrl of(String url, int start) {
         int beginIndex = url.lastIndexOf("/");
         String fileName = url.substring(beginIndex + 1);
 
@@ -57,7 +61,7 @@ public class DownloadUrl {
                     .append(matcher.group(5))
                     .toString();
 
-            return new DownloadUrl(format, Integer.parseInt(matcher.group(3)));
+            return new DownloadUrl(format, start, Integer.parseInt(matcher.group(3)));
         }
         throw new RuntimeException("해당 url을 변환할 수 없습니다. " + url);
     }

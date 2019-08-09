@@ -1,4 +1,4 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
 import me.moonchan.streaming.downloader.ui.addtask.CookieViewModel;
 

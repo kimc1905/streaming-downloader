@@ -56,17 +56,17 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     public void init() {
         clearData();
         String clipboardText = Clipboard.getSystemClipboard().getString();
-        if(clipboardText != null) {
+        if (clipboardText != null) {
             autoFill(clipboardText);
             if (!urlFormat.get().isEmpty())
                 url.set(clipboardText);
         }
         // 최근 쿠키 설정
         Optional<Cookie> cookie = preferences.getObject(Constants.PreferenceKey.PREF_RECENT_COOKIE, Cookie.class);
-        cookie.ifPresent(v -> setCookie(v));
+        cookie.ifPresent(this::setCookie);
         // 최근 저장 위치 설정
         String recentSaveDirPath = preferences.get(Constants.PreferenceKey.PREF_RECENT_SAVE_FILE, "");
-        if(!recentSaveDirPath.isEmpty()) {
+        if (!recentSaveDirPath.isEmpty()) {
             setRecentSaveFile(recentSaveDirPath);
         }
     }
@@ -79,7 +79,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         end.set("");
     }
 
-    public void setRecentSaveFile(String path) {
+    private void setRecentSaveFile(String path) {
         File recentSaveFile = new File(path);
         saveLocation.set(recentSaveFile.getAbsolutePath());
         this.recentSaveDir = recentSaveFile.getParentFile();
@@ -90,7 +90,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     }
 
     public Optional<File> getRecentSaveDir() {
-        if(hasRecentSaveDir())
+        if (hasRecentSaveDir())
             return Optional.of(recentSaveDir);
         return Optional.empty();
     }
@@ -135,20 +135,20 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
             cookieData.remove(index);
     }
 
-    public void setCookie(Cookie cookie) {
+    private void setCookie(Cookie cookie) {
         List<CookieViewModel> cookieViewModelList = cookie.getCookieViewModelList();
         cookieData.addAll(cookieViewModelList);
     }
 
-    public Cookie getCookie() {
-        if(cookieData.isEmpty())
+    private Cookie getCookie() {
+        if (cookieData.isEmpty())
             return null;
         Cookie cookie = new Cookie();
         cookieData.forEach(v -> cookie.putCookie(v.getKey().getValue(), v.getValue().getValue()));
         return cookie;
     }
 
-    public void autoFill(String url) {
+    private void autoFill(String url) {
         log.debug(url);
         Optional<DownloadUrl> downloadUrl = toDownloadUrl(url);
         downloadUrl.ifPresent(v -> {
@@ -183,17 +183,14 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
             throw new RuntimeException("save location is empty");
         File saveLocation = new File(saveLocationText);
         File saveDir = saveLocation.getParentFile();
-        if(!saveDir.isDirectory()) {
+        if (!saveDir.isDirectory()) {
             return false;
         }
-        if(!saveLocation.getName().endsWith(".ts")) {
-            return false;
-        }
-        return true;
+        return saveLocation.getName().endsWith(".ts");
     }
 
     public void addDownloadTask() {
-        if(!validateSaveLocation()) {
+        if (!validateSaveLocation()) {
             throw new RuntimeException("저장 위치가 올바르지 않습니다.");
         }
         File saveLocation = new File(this.saveLocation.get());

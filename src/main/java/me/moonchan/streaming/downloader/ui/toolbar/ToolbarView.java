@@ -8,11 +8,15 @@ import org.springframework.stereotype.Controller;
 @Controller
 @Slf4j
 public class ToolbarView implements ToolbarContract.View {
-
-    ToolbarContract.Presenter presenter;
+    private ToolbarContract.Presenter presenter;
 
     public ToolbarView(ToolbarContract.Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @FXML
+    private void initialize() {
+        presenter.setView(this);
     }
 
     @FXML

@@ -31,13 +31,13 @@ public class DownloadPresenter implements DownloadContract.Presenter {
         eventBus.register(ToolbarEvent.class, this::onToolbarEvent);
     }
 
-    public void addDownloadTask(AddDownloadTaskEvent event) {
+    private void addDownloadTask(AddDownloadTaskEvent event) {
         downloadTasks.add(new DownloadTaskViewModel(event.getDownloadTask()));
     }
 
-    public void onToolbarEvent(ToolbarEvent event) {
-        if(event.isEqualSource(Constants.ComponentId.BTN_CLEAR_FINISHED_TASK)) {
-            downloadTasks.removeIf(downloadTask -> downloadTask.isFinished());
+    private void onToolbarEvent(ToolbarEvent event) {
+        if (event.isEqualSource(Constants.ComponentId.BTN_CLEAR_FINISHED_TASK)) {
+            downloadTasks.removeIf(DownloadTaskViewModel::isFinished);
         }
     }
 

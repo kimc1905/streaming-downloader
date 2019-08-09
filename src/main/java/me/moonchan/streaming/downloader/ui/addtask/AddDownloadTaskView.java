@@ -19,7 +19,6 @@ import java.io.File;
 @Controller
 @Slf4j
 public class AddDownloadTaskView implements AddDownloadTaskContract.View {
-
     @FXML
     private TextField editUrl;
     @FXML
@@ -42,12 +41,10 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     private TextField editCookieValue;
 
     private Stage dialogStage;
-
-    @Autowired
     private AddDownloadTaskContract.Presenter presenter;
 
     @Autowired
-    public AddDownloadTaskView(AddDownloadTaskPresenter presenter) {
+    public AddDownloadTaskView(AddDownloadTaskContract.Presenter presenter) {
         this.presenter = presenter;
     }
 
@@ -106,24 +103,6 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
         return tableCookie.getScene();
     }
 
-//    public void setUrl(String text) {
-//        autoFill(text);
-//        if (!editUrlFormat.getText().isEmpty())
-//            editUrl.setText(text);
-//    }
-
-//    public void setRecentSaveFile(String path) {
-//        presenter.setRecentSaveFile(path);
-//    }
-//
-//    private void autoFill(String url) {
-//        presenter.autoFill(url);
-//    }
-//
-//    public void setCookie(Cookie cookie) {
-//        presenter.setCookie(cookie);
-//    }
-
     @FXML
     private void onAutoCompleteButtonClicked() {
         presenter.autoComplete();
@@ -159,11 +138,11 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
             e.printStackTrace();
         }
     }
-    
+
     private void browseSaveLocation(Window window) {
         FileChooser fileChooser;
         fileChooser = createTsFileChooser();
-        presenter.getRecentSaveDir().ifPresent(recentDir -> fileChooser.setInitialDirectory(recentDir));
+        presenter.getRecentSaveDir().ifPresent(fileChooser::setInitialDirectory);
         File saveFile = fileChooser.showSaveDialog(window);
         if (saveFile != null) {
             presenter.setSaveLocation(saveFile);

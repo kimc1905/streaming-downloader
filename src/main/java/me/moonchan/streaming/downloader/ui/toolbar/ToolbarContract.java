@@ -4,7 +4,6 @@ import javafx.event.ActionEvent;
 import me.moonchan.streaming.downloader.ui.BaseContract;
 
 class ToolbarContract {
-
     interface View extends BaseContract.View {
     }
 

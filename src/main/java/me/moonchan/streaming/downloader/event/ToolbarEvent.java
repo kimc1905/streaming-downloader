@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.stage.Window;
 
-
 public class ToolbarEvent {
     private ActionEvent event;
 
@@ -22,7 +21,7 @@ public class ToolbarEvent {
     }
 
     private String getSourceId() {
-        return  ((Control) event.getSource()).getId();
+        return ((Control) event.getSource()).getId();
     }
 
     public Window getSourceWindow() {

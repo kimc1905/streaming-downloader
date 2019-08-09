@@ -2,7 +2,6 @@ package me.moonchan.streaming.downloader.domain;
 
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
-import javafx.beans.value.ObservableStringValue;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -40,12 +39,12 @@ public class DownloadTask implements Runnable {
         private int length;
 
         public double getPercent() {
-            return (double)current / (double)length;
+            return (double) current / (double) length;
         }
     }
 
     private static final int RETRY = 3;
-    public static final State INIT_DOWNLOAD_STATE = State.READY;
+    private static final State INIT_DOWNLOAD_STATE = State.READY;
 
     private File saveLocation;
     private Cookie cookie;
@@ -118,8 +117,15 @@ public class DownloadTask implements Runnable {
     }
 
     private void saveFile(Response response) throws IOException {
-        if (response == null || response.code() != 200) {
-            throw new RuntimeException("Http Error: " + response.code() + ", " + response.body().string());
+        if (response == null) {
+            throw new RuntimeException("Response is null");
+        }
+        if (response.code() != 200) {
+            String msg = response.body() != null ? response.body().string() : "empty body";
+            throw new RuntimeException("Http Error: " + response.code() + ", " + msg);
+        }
+        if(response.body() == null) {
+            throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
         }
         Files.write(Paths.get(saveLocation.getAbsolutePath()), response.body().bytes(), StandardOpenOption.APPEND);
     }
@@ -147,9 +153,6 @@ public class DownloadTask implements Runnable {
                 observableProgress.accept(Progress.of((i - start + 1), length));
             }
             setState(State.COMPLETE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            setState(State.ERROR);
         } catch (Exception e) {
             e.printStackTrace();
             setState(State.ERROR);

@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class MainPresenter implements MainContract.Presenter {
-
     private JsonPreferences preferences;
     private OkHttpClient client;
     private Downloader downloader;
@@ -46,7 +45,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void onToolbarEvent(ToolbarEvent event) {
-        if(event.isEqualSource(Constants.ComponentId.BTN_ADD_DOWNLOAD_TASK)) {
+        if (event.isEqualSource(Constants.ComponentId.BTN_ADD_DOWNLOAD_TASK)) {
             view.showAddDownloadTaskDialog();
         }
     }
@@ -64,11 +63,6 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void shutdownDownloader() {
         downloader.shutdown();
-    }
-
-    public void initAddDownloadTaskView(AddDownloadTaskContract.View view) {
-        // 클립보드에 다운받을 스트리밍 주소가 있으면 미리 설정
-
     }
 
     public void onError(Throwable e) {

@@ -39,10 +39,10 @@ public class JsonPreferences {
 
     public <T> Optional<T> getObject(String key, Class<T> tClass) {
         String json = preferences.get(key, "");
-        if(json.isEmpty())
+        if (json.isEmpty())
             return Optional.empty();
         T value = gson.fromJson(json, tClass);
-        if(value == null)
+        if (value == null)
             return Optional.empty();
         return Optional.of(value);
     }

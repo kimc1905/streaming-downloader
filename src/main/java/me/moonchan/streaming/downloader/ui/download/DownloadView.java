@@ -39,13 +39,4 @@ public class DownloadView implements DownloadContract.View {
         colProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
         colProgress.setCellValueFactory(cellData -> cellData.getValue().getProgress().asObject());
     }
-
-//    public void addDownloadTask(DownloadTask task) {
-//        presenter.addDownloadTask(task);
-//    }
-//
-//    public void clearFinishedDownloadTask() {
-//        presenter.clearFinishedDownloadTask();
-//    }
-
 }

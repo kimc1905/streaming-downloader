@@ -163,5 +163,4 @@ public class DownloadTask implements Runnable {
         this.state = state;
         observableState.accept(state);
     }
-
 }

@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.ui.main.MainView;
 import me.moonchan.streaming.downloader.util.Constants;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +14,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.prefs.Preferences;
 
+@Slf4j
 @SpringBootApplication
 public class App extends Application {
     private static final int WIDTH = 1024;
@@ -66,7 +68,7 @@ public class App extends Application {
     }
 
     private void savePositionAndSize() {
-        System.out.println(String.format("width: %f, height: %f", mainStage.getWidth(), mainStage.getHeight()));
+        log.debug(String.format("width: %f, height: %f", mainStage.getWidth(), mainStage.getHeight()));
         preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_WIDTH, mainStage.getWidth());
         preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_HEIGHT, mainStage.getHeight());
         preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_X, mainStage.getX());

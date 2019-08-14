@@ -40,8 +40,7 @@ public class DownloadUrl {
 
         if (matcher.find()) {
             String format = new StringBuilder()
-                    .append(url, 0, beginIndex)
-                    .append("/")
+                    .append(url, 0, beginIndex + 1)
                     .append(matcher.group(1))
                     .append(matcher.group(2))
                     .append("%d")

@@ -12,6 +12,8 @@ import java.util.Optional;
 public class AddDownloadTaskContract {
     public interface View extends BaseContract.View {
         void setDialogStage(Stage dialogStage);
+        void showBitrateBox(boolean show);
+        void setSelectBitrate(int bitrate);
         Scene getScene();
     }
     interface Presenter extends BaseContract.Presenter<View> {
@@ -26,6 +28,7 @@ public class AddDownloadTaskContract {
         void bindCookieTableView(TableView<CookieViewModel> tableCookie);
         Optional<File> getRecentSaveDir();
         void setSaveLocation(File saveFile);
+        void changeBitrate(int bitrate);
         void addCookie();
         void removeCookie();
         void addDownloadTask();

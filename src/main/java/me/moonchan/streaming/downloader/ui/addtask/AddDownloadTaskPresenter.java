@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @Slf4j
@@ -37,6 +39,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     private ObservableList<CookieViewModel> cookieData;
     private EventBus eventBus;
     private JsonPreferences preferences;
+    private AddDownloadTaskContract.View view;
 
     @Autowired
     public AddDownloadTaskPresenter(EventBus eventBus, JsonPreferences preferences) {
@@ -77,6 +80,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         urlFormat.set("");
         start.set("");
         end.set("");
+        view.showBitrateBox(false);
     }
 
     private void setRecentSaveFile(String path) {
@@ -99,6 +103,20 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     public void setSaveLocation(File save) {
         this.saveLocation.set(save.getAbsolutePath());
         recentSaveDir = save.getParentFile();
+    }
+
+    @Override
+    public void changeBitrate(int bitrate) {
+        Pattern pattern = Pattern.compile(DownloadUrl.PATTERN_BITRATE);
+        String urlFormatStr = urlFormat.get();
+        Matcher matcher = pattern.matcher(urlFormatStr);
+
+        if (matcher.find()) {
+            int originalBitrate = Integer.parseInt(matcher.group(1));
+            if (originalBitrate != bitrate) {
+                urlFormat.set(urlFormatStr.replace("/" + originalBitrate + "/", "/" + bitrate + "/"));
+            }
+        }
     }
 
     private int searchCookie(String key) {
@@ -155,6 +173,15 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
             urlFormat.set(v.getUrlFormat());
             start.set(String.valueOf(v.getStart()));
             end.set(String.valueOf(v.getEnd()));
+            if(url.contains("pooq.co.kr")) {
+                view.showBitrateBox(true);
+                v.getBitrate().ifPresent(v2 -> {
+                    int bitrate = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, v2);
+                    view.setSelectBitrate(bitrate);
+                });
+            } else {
+                view.showBitrateBox(false);
+            }
         });
     }
 
@@ -207,7 +234,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
 
     @Override
     public void setView(AddDownloadTaskContract.View view) {
-
+        this.view = view;
     }
 
     @Override

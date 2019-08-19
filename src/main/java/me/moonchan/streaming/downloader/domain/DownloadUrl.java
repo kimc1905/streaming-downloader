@@ -2,13 +2,14 @@ package me.moonchan.streaming.downloader.domain;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class DownloadUrl {
     private static final String PATTERN_TS_URL = "(\\S+)(\\D+)(\\d+)(.ts)(\\S*$)";
-    private static final String PATTERN_BITRATE = "/(\\d{4})/";
+    public static final String PATTERN_BITRATE = "/(\\d{4})/";
     private String urlFormat;
     private int start;
     private int end;
@@ -53,18 +54,13 @@ public class DownloadUrl {
         throw new RuntimeException("해당 url을 변환할 수 없습니다. " + url);
     }
 
-    public static DownloadUrl of(String urlFormat, int start, int end, int bitrate) {
+    public Optional<Integer> getBitrate() {
         Pattern pattern = Pattern.compile(PATTERN_BITRATE);
         Matcher matcher = pattern.matcher(urlFormat);
-        String newUrlFormat = urlFormat;
-
         if (matcher.find()) {
-            int originalBitrate = Integer.parseInt(matcher.group(1));
-            if (originalBitrate != bitrate) {
-                newUrlFormat = urlFormat.replace("/" + originalBitrate + "/", "/" + bitrate + "/");
-            }
+            return Optional.of(Integer.parseInt(matcher.group(1)));
         }
-        return of(newUrlFormat, start, end);
+        return Optional.empty();
     }
 
     public String getUrlFormat() {

@@ -58,6 +58,9 @@ public class MainPresenter implements MainContract.Presenter {
         preferences.put(Constants.PreferenceKey.PREF_RECENT_SAVE_FILE, downloadInfo.getSaveLocation().getAbsolutePath());
         preferences.putInt(Constants.PreferenceKey.PREF_RECENT_START, downloadInfo.getStart());
         preferences.putObject(Constants.PreferenceKey.PREF_RECENT_COOKIE, downloadInfo.getCookie());
+        downloadInfo.getDownloadUrl().getBitrate().ifPresent(bitrate -> {
+            preferences.putInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, bitrate);
+        });
     }
 
     @Override

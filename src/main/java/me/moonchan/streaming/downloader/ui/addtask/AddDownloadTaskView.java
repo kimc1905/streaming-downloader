@@ -4,9 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -39,13 +38,24 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     private TextField editCookieKey;
     @FXML
     private TextField editCookieValue;
+    @FXML
+    private HBox boxBitrate;
+    @FXML
+    private RadioButton rbtSd;
+    @FXML
+    private RadioButton rbtHd;
+    @FXML
+    private RadioButton rbtFhd;
 
+    private ToggleGroup toggleGroup;
     private Stage dialogStage;
     private AddDownloadTaskContract.Presenter presenter;
 
     @Autowired
     public AddDownloadTaskView(AddDownloadTaskContract.Presenter presenter) {
         this.presenter = presenter;
+        presenter.setView(this);
+        this.toggleGroup = new ToggleGroup();
     }
 
     @FXML
@@ -54,6 +64,7 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
         bindProperty();
         initTextAreaFilter();
         initTableView();
+        initBitrateView();
         presenter.init();
     }
 
@@ -92,6 +103,23 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
                     }
                 }
         );
+    }
+
+    private void initBitrateView() {
+        rbtSd.setToggleGroup(toggleGroup);
+        rbtHd.setToggleGroup(toggleGroup);
+        rbtFhd.setToggleGroup(toggleGroup);
+        toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            int bitrate = Integer.parseInt((String)(toggleGroup.getSelectedToggle().getUserData()));
+            presenter.changeBitrate(bitrate);
+        });
+    }
+
+    public void showBitrateBox(boolean show) {
+        boxBitrate.setVisible(show);
+        double height = show ? 40 : 0;
+        boxBitrate.setMaxHeight(height);
+        boxBitrate.setPrefHeight(height);
     }
 
     public void setDialogStage(Stage dialogStage) {
@@ -136,6 +164,20 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
             dialogStage.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setSelectBitrate(int bitrate) {
+        switch (bitrate) {
+            case 1000:
+                rbtSd.setSelected(true);
+                break;
+            case 2000:
+                rbtHd.setSelected(true);
+                break;
+            case 5000:
+                rbtFhd.setSelected(true);
+                break;
         }
     }
 

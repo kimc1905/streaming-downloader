@@ -52,9 +52,13 @@ public class MainPresenter implements MainContract.Presenter {
 
     private void onAddDownloadTask(AddDownloadInfoEvent event) {
         DownloadInfo downloadInfo = event.getDownloadInfo();
-        DownloadTask task = new DownloadTask(client, downloadInfo);
+        DownloadTask task = downloadInfo.toDownloadTask(client);
         downloader.addDownloadTask(task);
         eventBus.send(AddDownloadTaskEvent.of(task));
+        setPreferences(downloadInfo);
+    }
+
+    private void setPreferences(DownloadInfo downloadInfo) {
         preferences.put(Constants.PreferenceKey.PREF_RECENT_SAVE_FILE, downloadInfo.getSaveLocation().getAbsolutePath());
         preferences.putInt(Constants.PreferenceKey.PREF_RECENT_START, downloadInfo.getStart());
         preferences.putObject(Constants.PreferenceKey.PREF_RECENT_COOKIE, downloadInfo.getCookie());

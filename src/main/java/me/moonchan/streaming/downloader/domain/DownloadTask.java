@@ -46,10 +46,8 @@ public class DownloadTask implements Runnable {
     private static final int RETRY = 3;
     private static final State INIT_DOWNLOAD_STATE = State.READY;
 
-    private File saveLocation;
-    private Cookie cookie;
     private OkHttpClient client;
-    private DownloadUrl downloadUrl;
+    private DownloadInfo downloadInfo;
     @Getter
     private State state;
     @Getter
@@ -57,39 +55,26 @@ public class DownloadTask implements Runnable {
     @Getter
     private final Relay<Progress> observableProgress = PublishRelay.create();
 
-    public DownloadTask(OkHttpClient client, File saveLocation, DownloadUrl downloadUrl) {
-        this(client, saveLocation, downloadUrl, null);
-    }
-
-    public DownloadTask(OkHttpClient client, File saveLocation, DownloadUrl downloadUrl, Cookie cookie) {
-        this.client = client;
-        this.saveLocation = saveLocation;
-        this.downloadUrl = downloadUrl;
-        this.cookie = cookie;
-        this.state = INIT_DOWNLOAD_STATE;
-    }
-
     public DownloadTask(OkHttpClient client, DownloadInfo downloadInfo) {
         this.client = client;
-        this.saveLocation = downloadInfo.getSaveLocation();
-        this.downloadUrl = downloadInfo.getDownloadUrl();
-        this.cookie = downloadInfo.getCookie();
+        this.downloadInfo = downloadInfo;
         this.state = INIT_DOWNLOAD_STATE;
     }
 
-    public void setCookie(Cookie cookie) {
-        this.cookie = cookie;
-    }
-
-    public void setDownloadUrl(DownloadUrl downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
+//    public DownloadTask(OkHttpClient client, DownloadInfo downloadInfo) {
+//        this.client = client;
+//        this.saveLocation = downloadInfo.getSaveLocation();
+//        this.downloadUrl = downloadInfo.getDownloadUrl();
+//        this.cookie = downloadInfo.getCookie();
+//        this.state = INIT_DOWNLOAD_STATE;
+//    }
 
     public boolean isFinished() {
         return (state == State.COMPLETE || state == State.ERROR);
     }
 
     private void createDestFile() throws IOException {
+        File saveLocation = downloadInfo.getSaveLocation();
         if (saveLocation.exists())
             saveLocation.delete();
         saveLocation.createNewFile();
@@ -98,6 +83,7 @@ public class DownloadTask implements Runnable {
     private void downloadFromUrl(String url, int tryCount) throws IOException {
         try {
             Request.Builder requestBuilder = new Request.Builder().url(url);
+            Cookie cookie = downloadInfo.getCookie();
             if (cookie != null)
                 requestBuilder.addHeader("Cookie", cookie.toString());
             Request request = requestBuilder
@@ -127,20 +113,22 @@ public class DownloadTask implements Runnable {
         if(response.body() == null) {
             throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
         }
+        File saveLocation = downloadInfo.getSaveLocation();
         Files.write(Paths.get(saveLocation.getAbsolutePath()), response.body().bytes(), StandardOpenOption.APPEND);
     }
 
     public File getSaveLocation() {
-        return saveLocation;
+        return downloadInfo.getSaveLocation();
     }
 
     public DownloadUrl getDownloadUrl() {
-        return downloadUrl;
+        return downloadInfo.getDownloadUrl();
     }
 
     @Override
     public void run() {
         try {
+            DownloadUrl downloadUrl = downloadInfo.getDownloadUrl();
             createDestFile();
             setState(State.DOWNLOADING);
             int start = downloadUrl.getStart();

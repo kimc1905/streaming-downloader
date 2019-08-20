@@ -79,14 +79,21 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     }
 
     private void initTextAreaFilter() {
+        editUrlFormat.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null) presenter.setUrlFormat(newValue);
+        });
         editStart.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 editStart.setText(newValue.replaceAll("[^\\d]", ""));
+            } else {
+                presenter.setStart(Integer.parseInt(editStart.getText()));
             }
         });
         editEnd.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 editEnd.setText(newValue.replaceAll("[^\\d]", ""));
+            } else {
+                presenter.setEnd(Integer.parseInt(editEnd.getText()));
             }
         });
     }

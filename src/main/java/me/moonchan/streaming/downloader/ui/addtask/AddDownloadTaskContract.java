@@ -33,5 +33,8 @@ public class AddDownloadTaskContract {
         void removeCookie();
         void addDownloadTask();
         void autoComplete();
+        void setUrlFormat(String urlFormat);
+        void setStart(int start);
+        void setEnd(int end);
     }
 }

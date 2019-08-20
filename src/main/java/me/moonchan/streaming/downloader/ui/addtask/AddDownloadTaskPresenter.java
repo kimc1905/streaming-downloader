@@ -11,16 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.domain.Cookie;
 import me.moonchan.streaming.downloader.domain.DownloadInfo;
 import me.moonchan.streaming.downloader.domain.DownloadUrl;
-import me.moonchan.streaming.downloader.util.Constants;
-import me.moonchan.streaming.downloader.util.JsonPreferences;
 import me.moonchan.streaming.downloader.event.AddDownloadInfoEvent;
+import me.moonchan.streaming.downloader.exception.UrlParseException;
+import me.moonchan.streaming.downloader.util.Constants;
 import me.moonchan.streaming.downloader.util.EventBus;
+import me.moonchan.streaming.downloader.util.JsonPreferences;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     private final StringProperty cookieValue;
 
     private File recentSaveDir;
+    private DownloadUrl downloadUrl;
     private ObservableList<CookieViewModel> cookieData;
     private EventBus eventBus;
     private JsonPreferences preferences;
@@ -75,6 +78,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     }
 
     private void clearData() {
+        this.downloadUrl = new DownloadUrl();
         cookieData.clear();
         url.set("");
         urlFormat.set("");
@@ -119,13 +123,13 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         }
     }
 
-    private int searchCookie(String key) {
+    private OptionalInt searchCookie(String key) {
         for (int i = 0; i < cookieData.size(); i++) {
             CookieViewModel cookieViewModel = cookieData.get(i);
             if (cookieViewModel.isSameKey(key))
-                return i;
+                return OptionalInt.of(i);
         }
-        return -1;
+        return OptionalInt.empty();
     }
 
     public void addCookie() {
@@ -133,24 +137,19 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         String value = cookieValue.get();
         if (key.isEmpty() || value.isEmpty())
             return;
-
-        int index = searchCookie(key);
         CookieViewModel cookieViewModel = new CookieViewModel(key, value);
-        if (index < 0)
-            cookieData.add(cookieViewModel);
+        OptionalInt cookieIndex = searchCookie(key);
+        if (cookieIndex.isPresent())
+            cookieData.set(cookieIndex.getAsInt(), cookieViewModel);
         else
-            cookieData.set(index, cookieViewModel);
+            cookieData.add(cookieViewModel);
     }
 
     public void removeCookie() {
         String key = cookieKey.get();
-
         if (key.isEmpty())
             return;
-
-        int index = searchCookie(key);
-        if (index >= 0)
-            cookieData.remove(index);
+        searchCookie(key).ifPresent(index -> cookieData.remove(index));
     }
 
     private void setCookie(Cookie cookie) {
@@ -168,40 +167,24 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
 
     private void autoFill(String url) {
         log.debug(url);
-        Optional<DownloadUrl> downloadUrl = toDownloadUrl(url);
-        downloadUrl.ifPresent(v -> {
-            urlFormat.set(v.getUrlFormat());
-            start.set(String.valueOf(v.getStart()));
-            end.set(String.valueOf(v.getEnd()));
+        try {
+            downloadUrl.parseUrl(url);
+            urlFormat.set(downloadUrl.getUrlFormat());
+            int prefStart = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_START, 1);
+            start.set(String.valueOf(prefStart));
+            end.set(String.valueOf(downloadUrl.getEnd()));
             if(url.contains("pooq.co.kr")) {
                 view.showBitrateBox(true);
-                v.getBitrate().ifPresent(v2 -> {
-                    int bitrate = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, v2);
+                downloadUrl.getBitrate().ifPresent(v -> {
+                    int bitrate = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, v);
                     view.setSelectBitrate(bitrate);
                 });
             } else {
                 view.showBitrateBox(false);
             }
-        });
-    }
-
-    private Optional<DownloadUrl> toDownloadUrl(String url) {
-        if (!(url.startsWith("http://") || url.startsWith("https://")))
-            return Optional.empty();
-        try {
-            int start = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_START, 1);
-            return Optional.of(DownloadUrl.of(url, start));
-        } catch (Exception e) {
+        } catch (UrlParseException e) {
             e.printStackTrace();
-            return Optional.empty();
         }
-    }
-
-    private DownloadUrl getDownloadUrl() {
-        String urlFormat = this.urlFormat.get();
-        int start = Integer.parseInt(this.start.get());
-        int end = Integer.parseInt(this.end.get());
-        return DownloadUrl.of(urlFormat, start, end);
     }
 
     private boolean validateSaveLocation() {
@@ -221,15 +204,28 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
             throw new RuntimeException("저장 위치가 올바르지 않습니다.");
         }
         File saveLocation = new File(this.saveLocation.get());
-        DownloadUrl downloadUrl = getDownloadUrl();
         Cookie cookie = getCookie();
-        int start = Integer.parseInt(this.start.get());
-        eventBus.send(AddDownloadInfoEvent.of(new DownloadInfo(downloadUrl, saveLocation, cookie, start)));
+        eventBus.send(AddDownloadInfoEvent.of(new DownloadInfo(downloadUrl, saveLocation, cookie)));
     }
 
     @Override
     public void autoComplete() {
         autoFill(url.get());
+    }
+
+    @Override
+    public void setUrlFormat(String urlFormat) {
+        downloadUrl.setUrlFormat(urlFormat);
+    }
+
+    @Override
+    public void setStart(int start) {
+        downloadUrl.setStart(start);
+    }
+
+    @Override
+    public void setEnd(int end) {
+        downloadUrl.setEnd(end);
     }
 
     @Override

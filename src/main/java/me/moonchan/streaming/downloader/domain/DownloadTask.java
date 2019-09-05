@@ -1,5 +1,6 @@
 package me.moonchan.streaming.downloader.domain;
 
+import com.jakewharton.rxrelay2.BehaviorRelay;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
 import lombok.Getter;
@@ -51,7 +52,7 @@ public class DownloadTask implements Runnable {
     @Getter
     private State state;
     @Getter
-    private final Relay<State> observableState = PublishRelay.create();
+    private final Relay<State> observableState = BehaviorRelay.create();
     @Getter
     private final Relay<Progress> observableProgress = PublishRelay.create();
 
@@ -60,14 +61,6 @@ public class DownloadTask implements Runnable {
         this.downloadInfo = downloadInfo;
         this.state = INIT_DOWNLOAD_STATE;
     }
-
-//    public DownloadTask(OkHttpClient client, DownloadInfo downloadInfo) {
-//        this.client = client;
-//        this.saveLocation = downloadInfo.getSaveLocation();
-//        this.downloadUrl = downloadInfo.getDownloadUrl();
-//        this.cookie = downloadInfo.getCookie();
-//        this.state = INIT_DOWNLOAD_STATE;
-//    }
 
     public boolean isFinished() {
         return (state == State.COMPLETE || state == State.ERROR);

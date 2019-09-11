@@ -7,12 +7,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import me.moonchan.streaming.downloader.ui.main.MainView;
-import me.moonchan.streaming.downloader.util.Constants;
+import me.moonchan.streaming.downloader.util.AppPreferences;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.prefs.Preferences;
 
 @Slf4j
 @SpringBootApplication
@@ -24,12 +22,13 @@ public class App extends Application {
     private Parent rootNode;
     private Stage mainStage;
     private MainView mainView;
-    private Preferences preferences;
+    private AppPreferences preferences;
 
     @Override
     public void init() throws Exception {
         super.init();
-        preferences = Preferences.userNodeForPackage(this.getClass());
+        preferences = new AppPreferences();
+//        preferences.clear();
         springContext = SpringApplication.run(App.class);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/scene/main.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);
@@ -57,10 +56,10 @@ public class App extends Application {
     }
 
     private void setPositionAndSize(Stage stage) {
-        double x = preferences.getDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_X, stage.getX());
-        double y = preferences.getDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_Y, stage.getY());
-        int width = preferences.getInt(Constants.PreferenceKey.PREF_MAIN_STAGE_WIDTH, WIDTH);
-        int height = preferences.getInt(Constants.PreferenceKey.PREF_MAIN_STAGE_HEIGHT, HEIGHT);
+        double x = preferences.getMainStageX(stage.getX());
+        double y = preferences.getMainStageY(stage.getY());
+        double width = preferences.getMainStageWidth(WIDTH);
+        double height = preferences.getMainStageHeight(HEIGHT);
         stage.setX(x);
         stage.setY(y);
         stage.setWidth(width);
@@ -69,10 +68,10 @@ public class App extends Application {
 
     private void savePositionAndSize() {
         log.debug(String.format("width: %f, height: %f", mainStage.getWidth(), mainStage.getHeight()));
-        preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_WIDTH, mainStage.getWidth());
-        preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_HEIGHT, mainStage.getHeight());
-        preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_X, mainStage.getX());
-        preferences.putDouble(Constants.PreferenceKey.PREF_MAIN_STAGE_Y, mainStage.getY());
+        preferences.setMainStageWidth(mainStage.getWidth());
+        preferences.setMainStageHeight(mainStage.getHeight());
+        preferences.setMainStageX(mainStage.getX());
+        preferences.setMainStageY(mainStage.getY());
     }
 
     public static void main(String[] args) {

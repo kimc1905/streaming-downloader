@@ -7,11 +7,11 @@ import me.moonchan.streaming.downloader.domain.Downloader;
 import me.moonchan.streaming.downloader.event.AddDownloadInfoEvent;
 import me.moonchan.streaming.downloader.event.AddDownloadTaskEvent;
 import me.moonchan.streaming.downloader.event.ToolbarEvent;
-import me.moonchan.streaming.downloader.ui.addtask.AddDownloadTaskContract;
+import me.moonchan.streaming.downloader.util.AppPreferences;
 import me.moonchan.streaming.downloader.util.Constants;
 import me.moonchan.streaming.downloader.util.EventBus;
-import me.moonchan.streaming.downloader.util.JsonPreferences;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -20,14 +20,15 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class MainPresenter implements MainContract.Presenter {
-    private JsonPreferences preferences;
+    private AppPreferences preferences;
     private OkHttpClient client;
     private Downloader downloader;
     private MainContract.View view;
     private EventBus eventBus;
 
-    public MainPresenter(EventBus eventBus) {
-        this.preferences = new JsonPreferences();
+    @Autowired
+    public MainPresenter(EventBus eventBus, AppPreferences preferences) {
+        this.preferences = preferences;
         this.client = new OkHttpClient.Builder()
                 .callTimeout(15, TimeUnit.SECONDS)
                 .connectTimeout(15, TimeUnit.SECONDS)
@@ -59,12 +60,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void setPreferences(DownloadInfo downloadInfo) {
-        preferences.put(Constants.PreferenceKey.PREF_RECENT_SAVE_FILE, downloadInfo.getSaveLocation().getAbsolutePath());
-        preferences.putInt(Constants.PreferenceKey.PREF_RECENT_START, downloadInfo.getStart());
-        preferences.putObject(Constants.PreferenceKey.PREF_RECENT_COOKIE, downloadInfo.getCookie());
-        downloadInfo.getDownloadUrl().getBitrate().ifPresent(bitrate -> {
-            preferences.putInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, bitrate);
-        });
+        preferences.setDownloadInfo(downloadInfo);
     }
 
     @Override

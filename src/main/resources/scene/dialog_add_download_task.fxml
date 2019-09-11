@@ -45,9 +45,10 @@
                 </HBox>
                 <HBox fx:id="boxBitrate" alignment="CENTER_RIGHT" prefHeight="40" prefWidth="200.0" spacing="5.0">
                     <children>
-                        <RadioButton fx:id="rbtSd" mnemonicParsing="false" text="SD" userData="1000" />
-                        <RadioButton fx:id="rbtHd" mnemonicParsing="false" text="HD" userData="2000" />
-                        <RadioButton fx:id="rbtFhd" mnemonicParsing="false" text="FHD" userData="5000" />
+                        <RadioButton fx:id="rbtMd" mnemonicParsing="false" text="270(MD)" userData="MOBILE" />
+                        <RadioButton fx:id="rbtSd" mnemonicParsing="false" text="480(SD)" userData="SD" />
+                        <RadioButton fx:id="rbtHd" mnemonicParsing="false" text="720(HD)" userData="HD" />
+                        <RadioButton fx:id="rbtFhd" mnemonicParsing="false" text="1080(FHD)" userData="FHD" />
                     </children>
                 </HBox>
                 <HBox prefHeight="50.0" prefWidth="200.0">

@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.extern.slf4j.Slf4j;
+import me.moonchan.streaming.downloader.domain.Bitrate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -40,6 +41,8 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     private TextField editCookieValue;
     @FXML
     private HBox boxBitrate;
+    @FXML
+    private RadioButton rbtMd;
     @FXML
     private RadioButton rbtSd;
     @FXML
@@ -85,14 +88,14 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
         editStart.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 editStart.setText(newValue.replaceAll("[^\\d]", ""));
-            } else {
+            } else if (!editStart.getText().isEmpty()) {
                 presenter.setStart(Integer.parseInt(editStart.getText()));
             }
         });
         editEnd.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 editEnd.setText(newValue.replaceAll("[^\\d]", ""));
-            } else {
+            } else if (!editEnd.getText().isEmpty()) {
                 presenter.setEnd(Integer.parseInt(editEnd.getText()));
             }
         });
@@ -113,11 +116,12 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     }
 
     private void initBitrateView() {
+        rbtMd.setToggleGroup(toggleGroup);
         rbtSd.setToggleGroup(toggleGroup);
         rbtHd.setToggleGroup(toggleGroup);
         rbtFhd.setToggleGroup(toggleGroup);
         toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            int bitrate = Integer.parseInt((String)(toggleGroup.getSelectedToggle().getUserData()));
+            Bitrate bitrate = Bitrate.valueOf((String)(toggleGroup.getSelectedToggle().getUserData()));
             presenter.changeBitrate(bitrate);
         });
     }
@@ -174,15 +178,18 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
         }
     }
 
-    public void setSelectBitrate(int bitrate) {
+    public void setSelectBitrate(Bitrate bitrate) {
         switch (bitrate) {
-            case 1000:
+            case MOBILE:
+                rbtMd.setSelected(true);
+                break;
+            case SD:
                 rbtSd.setSelected(true);
                 break;
-            case 2000:
+            case HD:
                 rbtHd.setSelected(true);
                 break;
-            case 5000:
+            case FHD:
                 rbtFhd.setSelected(true);
                 break;
         }

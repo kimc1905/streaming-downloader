@@ -12,57 +12,16 @@ import java.util.regex.Pattern;
 @Setter
 public class DownloadUrl {
     private static final String PATTERN_TS_URL = "(\\S+)(\\D+)(\\d+)(.ts)(\\S*$)";
-    public static final String PATTERN_BITRATE = "/(\\d{4})/";
-    private String urlFormat;
-    private int start;
-    private int end;
+    protected String urlFormat;
+    protected int start;
+    protected int end;
 
     public DownloadUrl() {
-
     }
 
     public DownloadUrl(String url) {
         parseUrl(url);
     }
-//    private DownloadUrl(String urlFormat, int end) {
-//        this(urlFormat, 1, end);
-//    }
-//
-//    private DownloadUrl(String urlFormat, int start, int end) {
-//        this.urlFormat = urlFormat;
-//        this.start = start;
-//        this.end = end;
-//    }
-
-//    public static DownloadUrl of(String url) {
-//        return of(url, 1);
-//    }
-//
-//    public static DownloadUrl of(String urlFormat, int start, int end) {
-//        return new DownloadUrl(urlFormat, start, end);
-//    }
-//
-//    public static DownloadUrl of(String url, int start) {
-//        int beginIndex = url.lastIndexOf("/");
-//        String fileName = url.substring(beginIndex + 1);
-//
-//        Pattern pattern = Pattern.compile(PATTERN_TS_URL);
-//        Matcher matcher = pattern.matcher(fileName);
-//
-//        if (matcher.find()) {
-//            String format = new StringBuilder()
-//                    .append(url, 0, beginIndex + 1)
-//                    .append(matcher.group(1))
-//                    .append(matcher.group(2))
-//                    .append("%d")
-//                    .append(matcher.group(4))
-//                    .append(matcher.group(5))
-//                    .toString();
-//
-//            return new DownloadUrl(format, start, Integer.parseInt(matcher.group(3)));
-//        }
-//        throw new RuntimeException("해당 url을 변환할 수 없습니다. " + url);
-//    }
 
     public void parseUrl(String url) {
         int beginIndex = url.lastIndexOf("/");
@@ -88,15 +47,6 @@ public class DownloadUrl {
         }
     }
 
-    public Optional<Integer> getBitrate() {
-        Pattern pattern = Pattern.compile(PATTERN_BITRATE);
-        Matcher matcher = pattern.matcher(urlFormat);
-        if (matcher.find()) {
-            return Optional.of(Integer.parseInt(matcher.group(1)));
-        }
-        return Optional.empty();
-    }
-
     public String getUrlFormat() {
         return urlFormat;
     }
@@ -113,5 +63,27 @@ public class DownloadUrl {
 
     public int getEnd() {
         return end;
+    }
+
+    public Optional<Bitrate> getBitrate() {
+        Pattern pattern = Pattern.compile(getBitratePattern());
+        Matcher matcher = pattern.matcher(urlFormat);
+        if (matcher.find()) {
+            Bitrate bitrate = Bitrate.valueOf(Integer.parseInt(matcher.group(1)));
+            if(bitrate != null)
+                return Optional.of(bitrate);
+        }
+        return Optional.empty();
+    }
+
+    public void setBitrate(Bitrate bitrate) {
+    }
+
+    public boolean hasBitrate() {
+        return !getBitratePattern().isEmpty();
+    }
+
+    protected String getBitratePattern() {
+        return "";
     }
 }

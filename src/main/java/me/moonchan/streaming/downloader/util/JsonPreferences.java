@@ -24,6 +24,10 @@ public class JsonPreferences {
         preferences.putInt(key, value);
     }
 
+    public void putDouble(String key, double value) {
+        preferences.putDouble(key, value);
+    }
+
     public void putObject(String key, Object o) {
         String s = gson.toJson(o);
         preferences.put(key, s);
@@ -35,6 +39,10 @@ public class JsonPreferences {
 
     public int getInt(String key, int def) {
         return preferences.getInt(key, def);
+    }
+
+    public double getDouble(String key, double def) {
+        return preferences.getDouble(key, def);
     }
 
     public <T> Optional<T> getObject(String key, Class<T> tClass) {

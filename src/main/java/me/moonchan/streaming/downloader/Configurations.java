@@ -1,7 +1,7 @@
 package me.moonchan.streaming.downloader;
 
+import me.moonchan.streaming.downloader.util.AppPreferences;
 import me.moonchan.streaming.downloader.util.EventBus;
-import me.moonchan.streaming.downloader.util.JsonPreferences;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 public class Configurations {
 
     @Bean
-    public JsonPreferences jsonPreferences() {
-        return new JsonPreferences();
+    public AppPreferences appPreferences() {
+        return new AppPreferences();
     }
 
     @Bean

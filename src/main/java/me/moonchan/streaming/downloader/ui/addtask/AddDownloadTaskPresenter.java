@@ -8,14 +8,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import lombok.extern.slf4j.Slf4j;
-import me.moonchan.streaming.downloader.domain.Cookie;
-import me.moonchan.streaming.downloader.domain.DownloadInfo;
-import me.moonchan.streaming.downloader.domain.DownloadUrl;
+import me.moonchan.streaming.downloader.domain.*;
 import me.moonchan.streaming.downloader.event.AddDownloadInfoEvent;
 import me.moonchan.streaming.downloader.exception.UrlParseException;
-import me.moonchan.streaming.downloader.util.Constants;
+import me.moonchan.streaming.downloader.util.AppPreferences;
 import me.moonchan.streaming.downloader.util.EventBus;
-import me.moonchan.streaming.downloader.util.JsonPreferences;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +20,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 @Slf4j
@@ -41,11 +36,11 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     private DownloadUrl downloadUrl;
     private ObservableList<CookieViewModel> cookieData;
     private EventBus eventBus;
-    private JsonPreferences preferences;
+    private AppPreferences preferences;
     private AddDownloadTaskContract.View view;
 
     @Autowired
-    public AddDownloadTaskPresenter(EventBus eventBus, JsonPreferences preferences) {
+    public AddDownloadTaskPresenter(EventBus eventBus, AppPreferences preferences) {
         this.url = new SimpleStringProperty("");
         this.urlFormat = new SimpleStringProperty("");
         this.start = new SimpleStringProperty("");
@@ -68,10 +63,10 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
                 url.set(clipboardText);
         }
         // 최근 쿠키 설정
-        Optional<Cookie> cookie = preferences.getObject(Constants.PreferenceKey.PREF_RECENT_COOKIE, Cookie.class);
+        Optional<Cookie> cookie = preferences.getRecentCookie();
         cookie.ifPresent(this::setCookie);
         // 최근 저장 위치 설정
-        String recentSaveDirPath = preferences.get(Constants.PreferenceKey.PREF_RECENT_SAVE_FILE, "");
+        String recentSaveDirPath = preferences.getRecentSaveFile();
         if (!recentSaveDirPath.isEmpty()) {
             setRecentSaveFile(recentSaveDirPath);
         }
@@ -110,17 +105,12 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     }
 
     @Override
-    public void changeBitrate(int bitrate) {
-        Pattern pattern = Pattern.compile(DownloadUrl.PATTERN_BITRATE);
-        String urlFormatStr = urlFormat.get();
-        Matcher matcher = pattern.matcher(urlFormatStr);
-
-        if (matcher.find()) {
-            int originalBitrate = Integer.parseInt(matcher.group(1));
-            if (originalBitrate != bitrate) {
-                urlFormat.set(urlFormatStr.replace("/" + originalBitrate + "/", "/" + bitrate + "/"));
-            }
+    public void changeBitrate(Bitrate bitrate) {
+        if(!downloadUrl.hasBitrate()) {
+            return;
         }
+        downloadUrl.setBitrate(bitrate);
+        downloadUrl.getBitrate().ifPresent(v -> urlFormat.set(this.downloadUrl.getUrlFormat()));
     }
 
     private OptionalInt searchCookie(String key) {
@@ -168,22 +158,22 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     private void autoFill(String url) {
         log.debug(url);
         try {
-            downloadUrl.parseUrl(url);
+            downloadUrl = DownloadUrlFactory.create(url);
             urlFormat.set(downloadUrl.getUrlFormat());
-            int prefStart = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_START, 1);
-            start.set(String.valueOf(prefStart));
+            start.set(String.valueOf(downloadUrl.getStart()));
+//            start.set(String.valueOf(preferences.getRecentStart()));
             end.set(String.valueOf(downloadUrl.getEnd()));
-            if(url.contains("pooq.co.kr")) {
+            if(downloadUrl.hasBitrate()) {
                 view.showBitrateBox(true);
                 downloadUrl.getBitrate().ifPresent(v -> {
-                    int bitrate = preferences.getInt(Constants.PreferenceKey.PREF_RECENT_BITRATE, v);
+                    Bitrate bitrate = preferences.getRecentBitrate(v);
                     view.setSelectBitrate(bitrate);
                 });
             } else {
                 view.showBitrateBox(false);
             }
         } catch (UrlParseException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 

@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import me.moonchan.streaming.downloader.domain.Bitrate;
 import me.moonchan.streaming.downloader.ui.BaseContract;
 
 import java.io.File;
@@ -13,7 +14,7 @@ public class AddDownloadTaskContract {
     public interface View extends BaseContract.View {
         void setDialogStage(Stage dialogStage);
         void showBitrateBox(boolean show);
-        void setSelectBitrate(int bitrate);
+        void setSelectBitrate(Bitrate bitrate);
         Scene getScene();
     }
     interface Presenter extends BaseContract.Presenter<View> {
@@ -28,7 +29,7 @@ public class AddDownloadTaskContract {
         void bindCookieTableView(TableView<CookieViewModel> tableCookie);
         Optional<File> getRecentSaveDir();
         void setSaveLocation(File saveFile);
-        void changeBitrate(int bitrate);
+        void changeBitrate(Bitrate bitrate);
         void addCookie();
         void removeCookie();
         void addDownloadTask();

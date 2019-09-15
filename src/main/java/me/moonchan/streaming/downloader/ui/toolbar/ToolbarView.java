@@ -2,25 +2,30 @@ package me.moonchan.streaming.downloader.ui.toolbar;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 
-@Log4j
-public class ToolbarView {
+@Controller
+@Slf4j
+public class ToolbarView implements ToolbarContract.View {
+    private ToolbarContract.Presenter presenter;
 
-    ToolbarViewModel viewModel;
+    public ToolbarView(ToolbarContract.Presenter presenter) {
+        this.presenter = presenter;
+    }
 
     @FXML
     private void initialize() {
-        viewModel = new ToolbarViewModel();
+        presenter.setView(this);
     }
 
     @FXML
     public void onAddButtonClicked(ActionEvent e) {
-        viewModel.publishClickEvent(e);
+        presenter.sendEventMessage(e);
     }
 
     @FXML
     public void onClearButtonClicked(ActionEvent e) {
-        viewModel.publishClickEvent(e);
+        presenter.sendEventMessage(e);
     }
 }

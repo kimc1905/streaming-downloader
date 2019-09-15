@@ -1,9 +1,10 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
+import com.jakewharton.rxrelay2.BehaviorRelay;
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-@Log4j
+@Slf4j
 public class DownloadTask implements Runnable {
 
     public enum State {
@@ -39,49 +40,26 @@ public class DownloadTask implements Runnable {
         private int length;
 
         public double getPercent() {
-            return (double)current / (double)length;
+            return (double) current / (double) length;
         }
     }
 
     private static final int RETRY = 3;
-    public static final State INIT_STATE = State.READY;
+    private static final State INIT_DOWNLOAD_STATE = State.READY;
 
-    private File saveLocation;
-    private Cookie cookie;
     private OkHttpClient client;
-    private DownloadUrl downloadUrl;
+    private DownloadInfo downloadInfo;
+    @Getter
     private State state;
     @Getter
-    private final Relay<State> observableState = PublishRelay.create();
+    private final Relay<State> observableState = BehaviorRelay.create();
     @Getter
     private final Relay<Progress> observableProgress = PublishRelay.create();
 
-    public DownloadTask(OkHttpClient client, File saveLocation, DownloadUrl downloadUrl) {
-        this(client, saveLocation, downloadUrl, null);
-    }
-
-    public DownloadTask(OkHttpClient client, File saveLocation, DownloadUrl downloadUrl, Cookie cookie) {
-        this.client = client;
-        this.saveLocation = saveLocation;
-        this.downloadUrl = downloadUrl;
-        this.cookie = cookie;
-        this.state = INIT_STATE;
-    }
-
     public DownloadTask(OkHttpClient client, DownloadInfo downloadInfo) {
         this.client = client;
-        this.saveLocation = downloadInfo.getSaveLocation();
-        this.downloadUrl = downloadInfo.getDownloadUrl();
-        this.cookie = downloadInfo.getCookie();
-        this.state = INIT_STATE;
-    }
-
-    public void setCookie(Cookie cookie) {
-        this.cookie = cookie;
-    }
-
-    public void setDownloadUrl(DownloadUrl downloadUrl) {
-        this.downloadUrl = downloadUrl;
+        this.downloadInfo = downloadInfo;
+        this.state = INIT_DOWNLOAD_STATE;
     }
 
     public boolean isFinished() {
@@ -89,6 +67,7 @@ public class DownloadTask implements Runnable {
     }
 
     private void createDestFile() throws IOException {
+        File saveLocation = downloadInfo.getSaveLocation();
         if (saveLocation.exists())
             saveLocation.delete();
         saveLocation.createNewFile();
@@ -97,6 +76,7 @@ public class DownloadTask implements Runnable {
     private void downloadFromUrl(String url, int tryCount) throws IOException {
         try {
             Request.Builder requestBuilder = new Request.Builder().url(url);
+            Cookie cookie = downloadInfo.getCookie();
             if (cookie != null)
                 requestBuilder.addHeader("Cookie", cookie.toString());
             Request request = requestBuilder
@@ -116,25 +96,34 @@ public class DownloadTask implements Runnable {
     }
 
     private void saveFile(Response response) throws IOException {
-        if (response == null || response.code() != 200) {
-            throw new RuntimeException("Http Error: " + response.code() + ", " + response.body().string());
+        if (response == null) {
+            throw new RuntimeException("Response is null");
         }
+        if (response.code() != 200) {
+            String msg = response.body() != null ? response.body().string() : "empty body";
+            throw new RuntimeException("Http Error: " + response.code() + ", " + msg);
+        }
+        if(response.body() == null) {
+            throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
+        }
+        File saveLocation = downloadInfo.getSaveLocation();
         Files.write(Paths.get(saveLocation.getAbsolutePath()), response.body().bytes(), StandardOpenOption.APPEND);
     }
 
     public File getSaveLocation() {
-        return saveLocation;
+        return downloadInfo.getSaveLocation();
     }
 
     public DownloadUrl getDownloadUrl() {
-        return downloadUrl;
+        return downloadInfo.getDownloadUrl();
     }
 
     @Override
     public void run() {
         try {
+            DownloadUrl downloadUrl = downloadInfo.getDownloadUrl();
             createDestFile();
-            observableState.accept(State.DOWNLOADING);
+            setState(State.DOWNLOADING);
             int start = downloadUrl.getStart();
             int end = downloadUrl.getEnd();
             int length = end - start + 1;
@@ -144,14 +133,15 @@ public class DownloadTask implements Runnable {
                 downloadFromUrl(downloadUrl.getUrl(i), 1);
                 observableProgress.accept(Progress.of((i - start + 1), length));
             }
-            observableState.accept(State.COMPLETE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            observableState.accept(State.ERROR);
+            setState(State.COMPLETE);
         } catch (Exception e) {
             e.printStackTrace();
-            observableState.accept(State.ERROR);
+            setState(State.ERROR);
         }
     }
 
+    private void setState(State state) {
+        this.state = state;
+        observableState.accept(state);
+    }
 }

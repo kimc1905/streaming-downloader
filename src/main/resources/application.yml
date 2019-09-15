@@ -1,0 +1,9 @@
+logging:
+  level:
+    me.moonchan: DEBUG
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

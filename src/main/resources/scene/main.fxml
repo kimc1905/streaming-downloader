@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:id="mainPane" fx:controller="me.moonchan.streaming.downloader.ui.MainView">
+            fx:id="mainPane" fx:controller="me.moonchan.streaming.downloader.ui.main.MainView">
     <children>
         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <fx:include fx:id="menu" source="menu.fxml"/>
+                <!--<fx:include fx:id="menu" source="menu.fxml"/>-->
                 <fx:include fx:id="toolbar" source="toolbar.fxml"/>
                 <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                     <tabs>

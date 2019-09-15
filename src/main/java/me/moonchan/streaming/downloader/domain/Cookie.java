@@ -1,4 +1,4 @@
-package me.moonchan.streaming.downloader;
+package me.moonchan.streaming.downloader.domain;
 
 import me.moonchan.streaming.downloader.ui.addtask.CookieViewModel;
 
@@ -31,7 +31,7 @@ public class Cookie {
     @Override
     public String toString() {
         return cookieMap.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" +entry.getValue())
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("; "));
     }
 }

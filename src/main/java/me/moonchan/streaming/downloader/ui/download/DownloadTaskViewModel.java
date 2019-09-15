@@ -1,9 +1,12 @@
 package me.moonchan.streaming.downloader.ui.download;
 
-import javafx.beans.property.*;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import lombok.Getter;
-import me.moonchan.streaming.downloader.DownloadTask;
-import me.moonchan.streaming.downloader.DownloadUrl;
+import me.moonchan.streaming.downloader.domain.DownloadTask;
+import me.moonchan.streaming.downloader.domain.DownloadUrl;
 
 @Getter
 public class DownloadTaskViewModel {
@@ -16,13 +19,14 @@ public class DownloadTaskViewModel {
     private DownloadTask downloadTask;
 
     public DownloadTaskViewModel(DownloadTask downloadTask) {
-        this.downloadTask = downloadTask;
         DownloadUrl downloadUrl = downloadTask.getDownloadUrl();
+        this.downloadTask = downloadTask;
         this.name = new SimpleStringProperty(downloadTask.getSaveLocation().getName());
         this.url = new SimpleStringProperty(downloadUrl.getUrlFormat());
         this.dest = new SimpleStringProperty(downloadTask.getSaveLocation().getAbsolutePath());
-        this.state = new SimpleStringProperty(downloadTask.INIT_STATE.toString());
+        this.state = new SimpleStringProperty();
         this.progress = new SimpleDoubleProperty(0.0);
+        this.state = new SimpleStringProperty(downloadTask.getState().toString());
         downloadTask.getObservableProgress().subscribe(this::onProgressChanged);
         downloadTask.getObservableState().subscribe(this::onStateChanged);
     }
@@ -37,5 +41,8 @@ public class DownloadTaskViewModel {
 
     private void onStateChanged(DownloadTask.State state) {
         this.state.set(state.toString());
+        if(state == DownloadTask.State.COMPLETE) {
+            progress.set(1.0);
+        }
     }
 }

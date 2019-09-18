@@ -5,6 +5,9 @@ public class DownloadUrlFactory {
         if(url.contains("pooq.co.kr")) {
             return new PooqDownloadUrl(url);
         }
+        if(url.contains("wavve.com")) {
+            return new PooqDownloadUrl(url);
+        }
         if(url.contains("tving.com")) {
             return new TvingDownloadUrl(url);
         }

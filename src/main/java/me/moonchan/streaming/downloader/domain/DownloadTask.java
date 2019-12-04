@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.GzipSource;
+import okio.Okio;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,6 +83,7 @@ public class DownloadTask implements Runnable {
             if (cookie != null)
                 requestBuilder.addHeader("Cookie", cookie.toString());
             Request request = requestBuilder
+                    .get()
                     .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Whale/1.4.63.11 Safari/537.36")
                     .addHeader("Accept-Encoding", "gzip, deflate, br")
                     .addHeader("Accept", "*/*")
@@ -106,8 +110,30 @@ public class DownloadTask implements Runnable {
         if(response.body() == null) {
             throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
         }
+
         File saveLocation = downloadInfo.getSaveLocation();
-        Files.write(Paths.get(saveLocation.getAbsolutePath()), response.body().bytes(), StandardOpenOption.APPEND);
+        Files.write(Paths.get(saveLocation.getAbsolutePath()), decodeResponse(response), StandardOpenOption.APPEND);
+    }
+
+    private byte[] decodeResponse(Response response) throws IOException {
+        if(isZipped(response)) {
+            return unzip(response.body());
+        } else {
+            return response.body().bytes();
+        }
+    }
+
+    private boolean isZipped(Response response) {
+        return "gzip".equalsIgnoreCase(response.header("Content-Encoding"));
+    }
+
+    private byte[] unzip(ResponseBody body) {
+        try {
+            GzipSource responseBody = new GzipSource(body.source());
+            return Okio.buffer(responseBody).readByteArray();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public File getSaveLocation() {
@@ -127,7 +153,7 @@ public class DownloadTask implements Runnable {
             int start = downloadUrl.getStart();
             int end = downloadUrl.getEnd();
             int length = end - start + 1;
-            log.debug("-> Download Start: " + downloadUrl.getUrlFormat());
+            log.debug("-> Download Start: " + downloadUrl.getUrl(start));
             log.debug("   length: " + length);
             for (int i = start; i <= end; i++) {
                 downloadFromUrl(downloadUrl.getUrl(i), 1);

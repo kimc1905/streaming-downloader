@@ -1,11 +1,10 @@
 package me.moonchan.streaming.downloader.domain;
 
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PooqDownloadUrl extends DownloadUrl {
-    public PooqDownloadUrl(String url) {
+public class WavveDownloadUrl extends DownloadUrl {
+    public WavveDownloadUrl(String url) {
         super(url);
     }
 
@@ -18,7 +17,7 @@ public class PooqDownloadUrl extends DownloadUrl {
             if(original == null)
                 return;
             if (original != bitrate) {
-                urlFormat = urlFormat.replace("/" + getPooqBitrate(original) + "/", "/" + getPooqBitrate(bitrate) + "/");
+                urlFormat = urlFormat.replace("/" + getWavveBitrate(original) + "/", "/" + getWavveBitrate(bitrate) + "/");
             }
         }
     }
@@ -28,7 +27,7 @@ public class PooqDownloadUrl extends DownloadUrl {
         return "/(\\d{3,4})/";
     }
 
-    private int getPooqBitrate(Bitrate bitrate) {
+    private int getWavveBitrate(Bitrate bitrate) {
         switch (bitrate) {
             case MOBILE:
                 return 500;

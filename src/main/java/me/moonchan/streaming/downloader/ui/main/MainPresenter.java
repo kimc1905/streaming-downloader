@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -27,14 +26,9 @@ public class MainPresenter implements MainContract.Presenter {
     private EventBus eventBus;
 
     @Autowired
-    public MainPresenter(EventBus eventBus, AppPreferences preferences) {
+    public MainPresenter(EventBus eventBus, AppPreferences preferences, OkHttpClient client) {
         this.preferences = preferences;
-        this.client = new OkHttpClient.Builder()
-                .callTimeout(15, TimeUnit.SECONDS)
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
-                .build();
+        this.client = client;
         this.downloader = new Downloader(5);
         this.eventBus = eventBus;
     }

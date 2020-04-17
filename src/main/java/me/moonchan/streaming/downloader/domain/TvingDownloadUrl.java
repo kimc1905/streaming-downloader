@@ -20,6 +20,12 @@ public class TvingDownloadUrl extends DownloadUrl {
             if (original != bitrate) {
                 urlFormat = urlFormat.replace(getTvingBitrateString(original),
                         getTvingBitrateString(bitrate));
+                Pattern secPattern = Pattern.compile(getSecBitratePattern());
+                Matcher secMatcher = secPattern.matcher(urlFormat);
+                if(secMatcher.find()) {
+                    urlFormat = urlFormat.replace(secMatcher.group(1),
+                            String.valueOf(getTvingSecBitrate(bitrate)));
+                }
             }
         }
     }
@@ -27,6 +33,10 @@ public class TvingDownloadUrl extends DownloadUrl {
     @Override
     protected String getBitratePattern() {
         return "_t(\\d{2}).";
+    }
+
+    private String getSecBitratePattern() {
+        return "content_(510000|1400000|2700000|5500000)_";
     }
 
     private String getTvingBitrateString(Bitrate bitrate) {
@@ -43,6 +53,20 @@ public class TvingDownloadUrl extends DownloadUrl {
                 return 34;
             case FHD:
                 return 35;
+        }
+        return -1;
+    }
+
+    private int getTvingSecBitrate(Bitrate bitrate) {
+        switch (bitrate) {
+            case MOBILE:
+                return 510000;
+            case SD:
+                return 1400000;
+            case HD:
+                return 2700000;
+            case FHD:
+                return 5500000;
         }
         return -1;
     }

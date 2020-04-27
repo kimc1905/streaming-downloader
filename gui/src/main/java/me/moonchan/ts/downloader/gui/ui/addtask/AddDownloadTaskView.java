@@ -19,6 +19,10 @@ import java.io.File;
 @Controller
 @Slf4j
 public class AddDownloadTaskView implements AddDownloadTaskContract.View {
+    public static final double MIN_WIDTH = 600;
+    public static final double MIN_HEIGHT = 600;
+    public static final double WIDTH = 700;
+    public static final double HEIGHT = 600;
     @FXML
     private TextField editUrl;
     @FXML

@@ -8,6 +8,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import me.moonchan.ts.downloader.gui.ui.addtask.AddDownloadTaskContract;
+import me.moonchan.ts.downloader.gui.ui.addtask.AddDownloadTaskView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -58,17 +59,19 @@ public class MainView implements MainContract.View {
         dialogStage.initOwner(primaryStage);
         Scene scene = new Scene(page);
         dialogStage.setScene(scene);
+        dialogStage.setMinWidth(AddDownloadTaskView.MIN_WIDTH);
+        dialogStage.setMinHeight(AddDownloadTaskView.MIN_HEIGHT);
         dialogStage.setX(getMidX(primaryStage));
         dialogStage.setY(getMidY(primaryStage));
         return dialogStage;
     }
 
     private double getMidX(Stage parent) {
-        return parent.getX() + (parent.getWidth() / 2.0) - 350;
+        return parent.getX() + (parent.getWidth() / 2.0) - (AddDownloadTaskView.WIDTH / 2.0);
     }
 
     private double getMidY(Stage parent) {
-        return parent.getY() + (parent.getHeight() / 2.0) - 225;
+        return parent.getY() + (parent.getHeight() / 2.0) - (AddDownloadTaskView.HEIGHT / 2.0);
     }
 
     public void onStopApplication() {

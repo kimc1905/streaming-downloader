@@ -28,7 +28,6 @@ public class App extends Application {
     public void init() throws Exception {
         super.init();
         preferences = new AppPreferences();
-//        preferences.clear();
         springContext = SpringApplication.run(App.class);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/scene/main.fxml"));
         fxmlLoader.setControllerFactory(springContext::getBean);

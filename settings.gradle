@@ -1,2 +1,5 @@
 rootProject.name = 'streaming-downloader'
 
+include 'core'
+include 'gui'
+

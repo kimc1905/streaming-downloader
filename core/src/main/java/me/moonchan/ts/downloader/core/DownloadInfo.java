@@ -1,7 +1,8 @@
 package me.moonchan.ts.downloader.core;
 
 import lombok.Getter;
-import me.moonchan.ts.downloader.core.url.DownloadUrl;
+import me.moonchan.ts.downloader.core.domain.model.Cookie;
+import me.moonchan.ts.downloader.core.domain.url.DownloadUrl;
 import okhttp3.OkHttpClient;
 
 import java.io.File;
@@ -16,10 +17,6 @@ public class DownloadInfo {
         this.downloadUrl = downloadUrl;
         this.destFile = destFile;
         this.cookie = cookie;
-    }
-
-    public int getStart() {
-        return downloadUrl.getStart();
     }
 
     public DownloadTask toDownloadTask(OkHttpClient client) {

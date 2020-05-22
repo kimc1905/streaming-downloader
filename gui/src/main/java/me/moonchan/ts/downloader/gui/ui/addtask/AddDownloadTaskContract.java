@@ -4,7 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import me.moonchan.ts.downloader.core.Bitrate;
+import me.moonchan.ts.downloader.core.domain.model.Bitrate;
 import me.moonchan.ts.downloader.gui.ui.BaseContract;
 
 import java.io.File;
@@ -21,8 +21,6 @@ public class AddDownloadTaskContract {
         void init();
         void bindUrl(TextField tfUrl);
         void bindUrlFormat(TextField tfUrlFormat);
-        void bindStart(TextField tfStart);
-        void bindEnd(TextField tfEnd);
         void bindSaveLocation(TextField tfSaveLocation);
         void bindCookieKey(TextField tfCookieKey);
         void bindCookieValue(TextField tfCookieValue);
@@ -34,8 +32,6 @@ public class AddDownloadTaskContract {
         void removeCookie();
         void addDownloadTask();
         void autoComplete();
-        void setUrlFormat(String urlFormat);
-        void setStart(int start);
-        void setEnd(int end);
+        void setM3u8Url(String m3u8Url);
     }
 }

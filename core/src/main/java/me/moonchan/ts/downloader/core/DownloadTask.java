@@ -5,7 +5,9 @@ import com.jakewharton.rxrelay2.PublishRelay;
 import com.jakewharton.rxrelay2.Relay;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.moonchan.ts.downloader.core.url.DownloadUrl;
+import me.moonchan.ts.downloader.core.domain.model.Cookie;
+import me.moonchan.ts.downloader.core.domain.model.M3uInfo;
+import me.moonchan.ts.downloader.core.domain.url.DownloadUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,10 +17,14 @@ import okio.Okio;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.SocketException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Optional;
+
+import static me.moonchan.ts.downloader.core.util.CheckedExceptionLambdaUtil.throwingConsumerWrapper;
 
 @Slf4j
 public class DownloadTask {
@@ -77,26 +83,48 @@ public class DownloadTask {
         destFile.createNewFile();
     }
 
+    private Response requestTo(String url) throws IOException {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        Cookie cookie = downloadInfo.getCookie();
+        if (cookie != null)
+            requestBuilder.addHeader("Cookie", cookie.toString());
+        Request request = requestBuilder
+                .get()
+                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Whale/1.4.63.11 Safari/537.36")
+                .addHeader("Accept-Encoding", "gzip, deflate, br")
+                .addHeader("Accept", "*/*")
+                .build();
+        return client.newCall(request).execute();
+    }
+
+    private Optional<InputStream> downloadM3u8() throws IOException {
+        String m3u8Url = downloadInfo.getDownloadUrl().getM3u8Url();
+        Response response = requestTo(m3u8Url);
+        if (response.isSuccessful()) {
+            if (response.body() == null) {
+                return Optional.empty();
+            }
+            return Optional.of(response.body().byteStream());
+        } else {
+            log.debug("Response code: " + response.code());
+            if (response.body() != null)
+                log.debug("msg: " + response.body().string());
+        }
+
+        return Optional.empty();
+    }
+
     private void downloadFromUrl(String url, File dest) throws IOException {
         downloadFromUrl(url, dest, 1);
     }
 
     private void downloadFromUrl(String url, File dest, int tryCount) throws IOException {
         try {
-            Request.Builder requestBuilder = new Request.Builder().url(url);
-            Cookie cookie = downloadInfo.getCookie();
-            if (cookie != null)
-                requestBuilder.addHeader("Cookie", cookie.toString());
-            Request request = requestBuilder
-                    .get()
-                    .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Whale/1.4.63.11 Safari/537.36")
-                    .addHeader("Accept-Encoding", "gzip, deflate, br")
-                    .addHeader("Accept", "*/*")
-                    .build();
-            Response response = client.newCall(request).execute();
+            Response response = requestTo(url);
             saveFile(response, dest);
-        } catch (SocketException e) {
+        } catch (Exception e) {
             if (tryCount > RETRY) {
+                e.printStackTrace();
                 throw e;
             }
             downloadFromUrl(url, dest, tryCount + 1);
@@ -108,22 +136,27 @@ public class DownloadTask {
         if (response == null) {
             throw new RuntimeException("Response is null");
         }
+        if (response.body() == null) {
+            throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
+        }
         if (response.code() != 200) {
             String msg = response.body() != null ? response.body().string() : "empty body";
             throw new RuntimeException("Http Error: " + response.code() + ", " + msg);
         }
-        if(response.body() == null) {
-            throw new RuntimeException("Http Error: " + response.code() + ", " + "empty body");
-        }
 
-        Files.write(Paths.get(toFile.getAbsolutePath()), decodeResponse(response), StandardOpenOption.APPEND);
+        decodeResponse(response).ifPresent(throwingConsumerWrapper(decoded -> {
+            Files.write(Paths.get(toFile.getAbsolutePath()), decoded, StandardOpenOption.APPEND);
+        }));
     }
 
-    private byte[] decodeResponse(Response response) throws IOException {
-        if(isZipped(response)) {
-            return unzip(response.body());
+    private Optional<byte[]> decodeResponse(Response response) throws IOException {
+        if (response == null || response.body() == null) {
+            return Optional.empty();
+        }
+        if (isZipped(response)) {
+            return Optional.of(unzip(response.body()));
         } else {
-            return response.body().bytes();
+            return Optional.of(response.body().bytes());
         }
     }
 
@@ -152,17 +185,17 @@ public class DownloadTask {
         try {
             DownloadUrl downloadUrl = downloadInfo.getDownloadUrl();
             setState(State.DOWNLOADING);
-            int start = downloadUrl.getStart();
-            int end = downloadUrl.getEnd();
-            int length = end - start + 1;
-            log.debug("-> Download Start: " + downloadUrl.getUrl(start));
-            log.debug("   length: " + length);
-
+            M3uInfo m3uInfo = downloadM3u8()
+                    .map(M3uInfo::new)
+                    .orElseThrow(() -> new RuntimeException("Can't download m3u8 file"));
             createDestFile();
-            for (int i = start; i <= end; i++) {
+            List<String> contents = m3uInfo.getContents();
+            for (int i = 0; i < contents.size(); i++) {
+                String content = contents.get(i);
                 File destFile = downloadInfo.getDestFile();
-                downloadFromUrl(downloadUrl.getUrl(i), destFile);
-                observableProgress.accept(Progress.of((i - start + 1), length));
+                String url = downloadUrl.getContentUrl(content);
+                downloadFromUrl(url, destFile);
+                observableProgress.accept(Progress.of((i + 1), contents.size()));
             }
             setState(State.COMPLETE);
         } catch (Exception e) {

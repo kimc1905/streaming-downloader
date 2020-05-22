@@ -8,16 +8,18 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import lombok.extern.slf4j.Slf4j;
-import me.moonchan.ts.downloader.core.Bitrate;
-import me.moonchan.ts.downloader.core.Cookie;
+import me.moonchan.ts.downloader.core.domain.model.Bitrate;
+import me.moonchan.ts.downloader.core.domain.model.Cookie;
 import me.moonchan.ts.downloader.core.DownloadInfo;
-import me.moonchan.ts.downloader.core.url.DownloadUrl;
-import me.moonchan.ts.downloader.core.url.DownloadUrlFactory;
+import me.moonchan.ts.downloader.core.domain.url.DownloadUrl;
+import me.moonchan.ts.downloader.core.domain.url.DownloadUrlFactory;
+import me.moonchan.ts.downloader.core.domain.url.WavveDownloadUrl;
 import me.moonchan.ts.downloader.gui.event.AddDownloadInfoEvent;
 import me.moonchan.ts.downloader.core.exception.UrlParseException;
 import me.moonchan.ts.downloader.gui.util.AppPreferences;
 import me.moonchan.ts.downloader.gui.util.CookieUtil;
 import me.moonchan.ts.downloader.gui.util.EventBus;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,9 +32,7 @@ import java.util.OptionalInt;
 @Slf4j
 public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Presenter {
     private final StringProperty url;
-    private final StringProperty urlFormat;
-    private final StringProperty start;
-    private final StringProperty end;
+    private final StringProperty m3u8Url;
     private final StringProperty saveLocation;
     private final StringProperty cookieKey;
     private final StringProperty cookieValue;
@@ -42,14 +42,13 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     private ObservableList<CookieViewModel> cookieData;
     private EventBus eventBus;
     private AppPreferences preferences;
+    private OkHttpClient client;
     private AddDownloadTaskContract.View view;
 
     @Autowired
     public AddDownloadTaskPresenter(EventBus eventBus, AppPreferences preferences) {
         this.url = new SimpleStringProperty("");
-        this.urlFormat = new SimpleStringProperty("");
-        this.start = new SimpleStringProperty("");
-        this.end = new SimpleStringProperty("");
+        this.m3u8Url = new SimpleStringProperty("");
         this.saveLocation = new SimpleStringProperty("");
         this.cookieKey = new SimpleStringProperty("");
         this.cookieValue = new SimpleStringProperty("");
@@ -64,12 +63,9 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         String clipboardText = Clipboard.getSystemClipboard().getString();
         if (clipboardText != null) {
             autoFill(clipboardText);
-            if (!urlFormat.get().isEmpty())
+            if (!m3u8Url.get().isEmpty())
                 url.set(clipboardText);
         }
-        // 최근 쿠키 설정
-        Optional<Cookie> cookie = preferences.getRecentCookie();
-        cookie.ifPresent(this::setCookie);
         // 최근 저장 위치 설정
         String recentSaveDirPath = preferences.getRecentSaveFile();
         if (!recentSaveDirPath.isEmpty()) {
@@ -81,9 +77,9 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         this.downloadUrl = new DownloadUrl();
         cookieData.clear();
         url.set("");
-        urlFormat.set("");
-        start.set("");
-        end.set("");
+        m3u8Url.set("");
+        cookieKey.set("");
+        cookieValue.set("");
         view.showBitrateBox(false);
     }
 
@@ -115,7 +111,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
             return;
         }
         downloadUrl.setBitrate(bitrate);
-        downloadUrl.getBitrate().ifPresent(v -> urlFormat.set(this.downloadUrl.getUrlFormat()));
+        downloadUrl.getBitrate().ifPresent(v -> m3u8Url.set(this.downloadUrl.getM3u8Url()));
     }
 
     private OptionalInt searchCookie(String key) {
@@ -164,10 +160,13 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
         log.debug(url);
         try {
             downloadUrl = DownloadUrlFactory.create(url);
-            urlFormat.set(downloadUrl.getUrlFormat());
-            start.set(String.valueOf(downloadUrl.getStart()));
-//            start.set(String.valueOf(preferences.getRecentStart()));
-            end.set(String.valueOf(downloadUrl.getEnd()));
+            m3u8Url.set(downloadUrl.getM3u8Url());
+            cookieData.clear();
+            if(downloadUrl instanceof WavveDownloadUrl) {
+                cookieData.add(new CookieViewModel("authtoken", ""));
+                cookieKey.setValue("authtoken");
+                cookieValue.setValue("");
+            }
             if(downloadUrl.hasBitrate()) {
                 view.showBitrateBox(true);
                 downloadUrl.getBitrate().ifPresent(v -> {
@@ -178,7 +177,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
                 view.showBitrateBox(false);
             }
         } catch (UrlParseException e) {
-//            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 
@@ -210,18 +209,8 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
     }
 
     @Override
-    public void setUrlFormat(String urlFormat) {
-        downloadUrl.setUrlFormat(urlFormat);
-    }
-
-    @Override
-    public void setStart(int start) {
-        downloadUrl.setStart(start);
-    }
-
-    @Override
-    public void setEnd(int end) {
-        downloadUrl.setEnd(end);
+    public void setM3u8Url(String m3u8Url) {
+        downloadUrl.setM3u8Url(m3u8Url);
     }
 
     @Override
@@ -236,17 +225,7 @@ public class AddDownloadTaskPresenter implements AddDownloadTaskContract.Present
 
     @Override
     public void bindUrlFormat(TextField tfUrlFormat) {
-        tfUrlFormat.textProperty().bindBidirectional(urlFormat);
-    }
-
-    @Override
-    public void bindStart(TextField tfStart) {
-        tfStart.textProperty().bindBidirectional(start);
-    }
-
-    @Override
-    public void bindEnd(TextField tfEnd) {
-        tfEnd.textProperty().bindBidirectional(end);
+        tfUrlFormat.textProperty().bindBidirectional(m3u8Url);
     }
 
     @Override

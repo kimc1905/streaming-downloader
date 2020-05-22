@@ -1,11 +1,11 @@
-package me.moonchan.ts.downloader.core.url;
+package me.moonchan.ts.downloader.core.domain.url;
 
-import me.moonchan.ts.downloader.core.Bitrate;
+import me.moonchan.ts.downloader.core.domain.model.Bitrate;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static me.moonchan.ts.downloader.core.Bitrate.*;
+import static me.moonchan.ts.downloader.core.domain.model.Bitrate.valueOf;
 
 public class WavveDownloadUrl extends DownloadUrl {
     public WavveDownloadUrl(String url) {
@@ -15,13 +15,13 @@ public class WavveDownloadUrl extends DownloadUrl {
     @Override
     public void setBitrate(Bitrate bitrate) {
         Pattern pattern = Pattern.compile(getBitratePattern());
-        Matcher matcher = pattern.matcher(urlFormat);
+        Matcher matcher = pattern.matcher(baseUrl);
         if (matcher.find()) {
             Bitrate original = valueOf(Integer.parseInt(matcher.group(1)));
             if(original == null)
                 return;
             if (original != bitrate) {
-                urlFormat = urlFormat.replace("/" + getWavveBitrate(original) + "/", "/" + getWavveBitrate(bitrate) + "/");
+                baseUrl = baseUrl.replace("/" + getWavveBitrate(original) + "/", "/" + getWavveBitrate(bitrate) + "/");
             }
         }
     }

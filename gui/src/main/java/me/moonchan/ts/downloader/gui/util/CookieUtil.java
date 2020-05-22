@@ -1,6 +1,6 @@
 package me.moonchan.ts.downloader.gui.util;
 
-import me.moonchan.ts.downloader.core.Cookie;
+import me.moonchan.ts.downloader.core.domain.model.Cookie;
 import me.moonchan.ts.downloader.gui.ui.addtask.CookieViewModel;
 
 import java.util.*;

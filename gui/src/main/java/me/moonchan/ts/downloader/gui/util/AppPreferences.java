@@ -1,9 +1,9 @@
 package me.moonchan.ts.downloader.gui.util;
 
-import me.moonchan.ts.downloader.core.Bitrate;
-import me.moonchan.ts.downloader.core.Cookie;
+import me.moonchan.ts.downloader.core.domain.model.Bitrate;
+import me.moonchan.ts.downloader.core.domain.model.Cookie;
 import me.moonchan.ts.downloader.core.DownloadInfo;
-import me.moonchan.ts.downloader.core.url.DownloadUrl;
+import me.moonchan.ts.downloader.core.domain.url.DownloadUrl;
 
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
@@ -74,13 +74,10 @@ public class AppPreferences {
 
     public void setDownloadInfo(DownloadInfo downloadInfo) {
         preferences.put(PREF_RECENT_SAVE_FILE, downloadInfo.getDestFile().getAbsolutePath());
-//        preferences.putInt(PREF_RECENT_START, downloadInfo.getStart());
         preferences.putObject(PREF_RECENT_COOKIE, downloadInfo.getCookie());
         DownloadUrl downloadUrl = downloadInfo.getDownloadUrl();
         if(downloadUrl.hasBitrate()) {
-            downloadUrl.getBitrate().ifPresent(v -> {
-                preferences.put(PREF_RECENT_BITRATE, v.toString());
-            });
+            downloadUrl.getBitrate().ifPresent(v -> preferences.put(PREF_RECENT_BITRATE, v.toString()));
         }
     }
 

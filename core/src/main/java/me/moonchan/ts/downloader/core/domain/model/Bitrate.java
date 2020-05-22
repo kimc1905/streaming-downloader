@@ -1,4 +1,4 @@
-package me.moonchan.ts.downloader.core;
+package me.moonchan.ts.downloader.core.domain.model;
 
 public enum  Bitrate {
     MOBILE, SD, HD, FHD;

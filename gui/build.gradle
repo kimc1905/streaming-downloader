@@ -1,16 +1,13 @@
-bootJar { enabled = false }
-jar { enabled = true }
-
-buildscript {
-    ext {
-        rxjavaVersion = "2.2.2"
-    }
+bootJar {
+    enabled = true
+    archiveFileName = "streaming-downloader-gui-${archiveVersion.get()}.${archiveExtension.get()}"
 }
+jar { enabled = false }
 
 dependencies {
     compile 'com.squareup.okhttp3:okhttp:4.2.0'
-    compile "io.reactivex.rxjava2:rxjava:${rxjavaVersion}"
-    compile "io.reactivex.rxjava2:rxjavafx:${rxjavaVersion}"
+    compile 'io.reactivex.rxjava2:rxjava:2.2.2'
+    compile 'io.reactivex.rxjava2:rxjavafx:2.2.2'
     compile 'com.jakewharton.rxrelay2:rxrelay:2.1.0'
     compile 'com.google.code.gson:gson:2.8.6'
     compile project(':core')

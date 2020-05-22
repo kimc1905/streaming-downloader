@@ -10,7 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import lombok.extern.slf4j.Slf4j;
-import me.moonchan.ts.downloader.core.Bitrate;
+import me.moonchan.ts.downloader.core.domain.model.Bitrate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -27,10 +27,6 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     private TextField editUrl;
     @FXML
     private TextField editUrlFormat;
-    @FXML
-    private TextField editStart;
-    @FXML
-    private TextField editEnd;
     @FXML
     private TextField editSaveLocation;
     @FXML
@@ -78,8 +74,6 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
     private void bindProperty() {
         presenter.bindUrl(editUrl);
         presenter.bindUrlFormat(editUrlFormat);
-        presenter.bindStart(editStart);
-        presenter.bindEnd(editEnd);
         presenter.bindSaveLocation(editSaveLocation);
         presenter.bindCookieKey(editCookieKey);
         presenter.bindCookieValue(editCookieValue);
@@ -87,21 +81,7 @@ public class AddDownloadTaskView implements AddDownloadTaskContract.View {
 
     private void initTextAreaFilter() {
         editUrlFormat.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null) presenter.setUrlFormat(newValue);
-        });
-        editStart.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                editStart.setText(newValue.replaceAll("[^\\d]", ""));
-            } else if (!editStart.getText().isEmpty()) {
-                presenter.setStart(Integer.parseInt(editStart.getText()));
-            }
-        });
-        editEnd.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                editEnd.setText(newValue.replaceAll("[^\\d]", ""));
-            } else if (!editEnd.getText().isEmpty()) {
-                presenter.setEnd(Integer.parseInt(editEnd.getText()));
-            }
+            if(newValue != null) presenter.setM3u8Url(newValue);
         });
     }
 

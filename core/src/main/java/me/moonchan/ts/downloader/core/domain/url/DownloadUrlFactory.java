@@ -1,10 +1,7 @@
-package me.moonchan.ts.downloader.core.url;
+package me.moonchan.ts.downloader.core.domain.url;
 
 public class DownloadUrlFactory {
     public static DownloadUrl create(String url) {
-        if(url.contains("pooq.co.kr")) {
-            return new WavveDownloadUrl(url);
-        }
         if(url.contains("wavve.com")) {
             return new WavveDownloadUrl(url);
         }
